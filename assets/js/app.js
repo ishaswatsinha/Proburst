@@ -169,3 +169,114 @@ tabs.forEach(tab => {
     if (target) target.classList.add("active");
   });
 });
+
+
+
+// ===========================
+// FOOTER 
+// ==================================
+
+const cols = document.querySelectorAll('.footer-col');
+
+window.addEventListener('scroll', () => {
+    cols.forEach(col => {
+        let pos = col.getBoundingClientRect().top;
+        if (pos < window.innerHeight - 50) {
+            col.style.opacity = "1";
+            col.style.transform = "translateY(0)";
+        }
+    });
+});
+
+
+// ==============================
+// HAMBURGER MENU (MOBILE)
+// ==================================
+
+
+const hamburger = document.getElementById("hamburger");
+const menu = document.querySelector(".menu-bar");
+const overlay = document.getElementById("overlay");
+
+/* OPEN MENU */
+hamburger.onclick = () => {
+  menu.classList.add("active");
+  overlay.classList.add("active");
+}
+
+/* CLOSE MENU */
+overlay.onclick = () => {
+  menu.classList.remove("active");
+  overlay.classList.remove("active");
+
+  /* CLOSE ALL DROPDOWNS */
+  document.querySelectorAll(".dropdown, .has-submenu").forEach(el => {
+    el.classList.remove("active");
+  });
+}
+
+/* MAIN DROPDOWN */
+document.querySelectorAll(".dropdown").forEach(item => {
+
+  item.addEventListener("click", function(e) {
+
+    if (window.innerWidth < 768) {
+
+      e.stopPropagation();
+
+      /* CLOSE OTHER DROPDOWNS */
+      document.querySelectorAll(".dropdown").forEach(el => {
+        if (el !== this) el.classList.remove("active");
+      });
+
+      /* TOGGLE CURRENT */
+      this.classList.toggle("active");
+    }
+
+  });
+
+});
+
+/* SUBMENU FIX */
+document.querySelectorAll(".has-submenu").forEach(item => {
+
+  item.addEventListener("click", function(e) {
+
+    if (window.innerWidth < 768) {
+
+      e.stopPropagation();
+
+      /* CLOSE OTHER SUBMENUS */
+      document.querySelectorAll(".has-submenu").forEach(el => {
+        if (el !== this) el.classList.remove("active");
+      });
+
+      /* TOGGLE */
+      this.classList.toggle("active");
+
+    }
+
+  });
+
+});
+
+/* CLICK OUTSIDE MENU CLOSE */
+document.addEventListener("click", function(e) {
+
+  if (window.innerWidth < 768) {
+
+    if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+
+      menu.classList.remove("active");
+      overlay.classList.remove("active");
+
+      document.querySelectorAll(".dropdown, .has-submenu").forEach(el => {
+        el.classList.remove("active");
+      });
+
+    }
+
+  }
+
+});
+

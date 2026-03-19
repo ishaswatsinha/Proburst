@@ -6,6 +6,8 @@
 
   <!-- LOGO -->
   <div class="logo">
+
+    <div class="hamburger" id="hamburger">☰</div>
     <img src="/proburst/assets/images/logo.png" alt="logo">
   </div>
 
@@ -16,28 +18,62 @@
   </div>
 
   <!-- ICONS -->
-<div class="nav-icons">
-  <span class="icons"><i class="fa-solid fa-user"></i></span>
-  <span class="icons"><i class="fa-solid fa-heart"></i></span>
-  <span class="icons"><i class="fa-solid fa-cart-shopping"></i></span>
-</div>
+  <div class="nav-icons">
+    <span class="icons"><i class="fa-solid fa-user"></i></span>
+    <span class="icons"><i class="fa-solid fa-heart"></i></span>
+    <span class="icons"><i class="fa-solid fa-cart-shopping"></i></span>
+  </div>
 
 </nav>
 
 <!-- MENU BAR -->
 <div class="menu-bar">
   <ul>
+    <li>Home</li>
+
 
     <!-- DROPDOWN -->
-    <li class="dropdown">
-      Protein
-      <div class="dropdown-menu">
-        <div>Whey Protein</div>
-        <div>Isolate Protein</div>
-        <div>Plant Protein</div>
-        <div>Casein</div>
-      </div>
-    </li>
+    <a href="pages/shop.php">
+      <li class="dropdown">
+        Products
+        <div class="dropdown-menu">
+
+          <!-- Proteins -->
+          <div class="dropdown-item has-submenu">
+            <span>Proteins ›</span>
+
+            <div class="submenu">
+              <div>Whey Supreme</div>
+              <div>100% Whey</div>
+              <div>Nitro Builder</div>
+              <div>Isoburst Supreme</div>
+              <div>Whey Supreme Ripped</div>
+              <div>Micellar Casein</div>
+              <div>Immunity Protein</div>
+            </div>
+          </div>
+
+          <!-- Gainers -->
+          <div class="dropdown-item has-submenu">
+            <span>Gainers ›</span>
+
+            <div class="submenu">
+              <div>Mass Gainer XXL</div>
+              <div>Lean Mass Gainer</div>
+              <div>Serious Mass</div>
+            </div>
+          </div>
+
+          <!-- Other items -->
+          <div class="dropdown-item"> <span>Pre, Intra & Post Workout ›</span></div>
+          <div class="dropdown-item"> <span>Fat Burners ›</span></div>
+          <div class="dropdown-item"> <span>Vitamins & Minerals ›</span></div>
+
+        </div>
+      </li>
+
+    </a>
+
 
     <li class="dropdown">
       Mass
@@ -52,3 +88,4 @@
 
   </ul>
 </div>
+<div class="overlay" id="overlay"></div>
