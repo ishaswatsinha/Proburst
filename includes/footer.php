@@ -86,6 +86,8 @@
 
 </footer>
 
+<div id="toast"></div>
+
 <script src="/proburst/assets/js/app.js"></script>
 </body>
 </html>

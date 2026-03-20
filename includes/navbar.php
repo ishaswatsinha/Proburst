@@ -21,7 +21,14 @@
   <div class="nav-icons">
     <span class="icons"><i class="fa-solid fa-user"></i></span>
     <span class="icons"><i class="fa-solid fa-heart"></i></span>
-    <span class="icons"><i class="fa-solid fa-cart-shopping"></i></span>
+    <a href="/proburst/pages/cart.php" class="icons cart-icon">
+
+      <i class="fa-solid fa-cart-shopping"></i>
+
+      <!-- CART COUNT -->
+      <span id="cart-count">0</span>
+
+    </a>
   </div>
 
 </nav>

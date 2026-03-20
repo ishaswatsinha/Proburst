@@ -179,13 +179,13 @@ tabs.forEach(tab => {
 const cols = document.querySelectorAll('.footer-col');
 
 window.addEventListener('scroll', () => {
-    cols.forEach(col => {
-        let pos = col.getBoundingClientRect().top;
-        if (pos < window.innerHeight - 50) {
-            col.style.opacity = "1";
-            col.style.transform = "translateY(0)";
-        }
-    });
+  cols.forEach(col => {
+    let pos = col.getBoundingClientRect().top;
+    if (pos < window.innerHeight - 50) {
+      col.style.opacity = "1";
+      col.style.transform = "translateY(0)";
+    }
+  });
 });
 
 
@@ -218,7 +218,7 @@ overlay.onclick = () => {
 /* MAIN DROPDOWN */
 document.querySelectorAll(".dropdown").forEach(item => {
 
-  item.addEventListener("click", function(e) {
+  item.addEventListener("click", function (e) {
 
     if (window.innerWidth < 768) {
 
@@ -240,7 +240,7 @@ document.querySelectorAll(".dropdown").forEach(item => {
 /* SUBMENU FIX */
 document.querySelectorAll(".has-submenu").forEach(item => {
 
-  item.addEventListener("click", function(e) {
+  item.addEventListener("click", function (e) {
 
     if (window.innerWidth < 768) {
 
@@ -261,7 +261,7 @@ document.querySelectorAll(".has-submenu").forEach(item => {
 });
 
 /* CLICK OUTSIDE MENU CLOSE */
-document.addEventListener("click", function(e) {
+document.addEventListener("click", function (e) {
 
   if (window.innerWidth < 768) {
 
@@ -280,3 +280,128 @@ document.addEventListener("click", function(e) {
 
 });
 
+
+// =====================
+// Add to Cart Function (SHOP PAGE)
+// =========================
+
+
+
+
+function addToCart(id, name, price, image, btn = null) {
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  let existing = cart.find(item => item.id === id);
+
+  if (existing) {
+
+    /* 🔥 INCREMENT WITH LIMIT */
+    if (existing.qty >= 10) {
+      showToast("Max quantity reached");
+      return;
+    }
+
+    existing.qty += 1;
+
+  } else {
+
+    cart.push({
+      id,
+      name,
+      price,
+      image,
+      qty: 1
+    });
+
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  updateCartCount();
+
+  animateToCart(image, btn);
+
+  showToast("Added to cart 🛒");
+}
+
+
+/* =========================
+   FLY TO CART ANIMATION
+========================= */
+function animateToCart(image, btn) {
+
+  if (!btn) return;
+
+  let img = document.createElement("img");
+  img.src = "../assets/images/" + image;
+
+  img.style.position = "fixed";
+  img.style.width = "80px";
+  img.style.zIndex = "9999";
+  img.style.borderRadius = "10px";
+
+  let rect = btn.getBoundingClientRect();
+
+  img.style.left = rect.left + "px";
+  img.style.top = rect.top + "px";
+
+  document.body.appendChild(img);
+
+  let cart = document.querySelector(".cart-icon");
+
+  let cartRect = cart.getBoundingClientRect();
+
+  setTimeout(() => {
+    img.style.transition = "all 0.7s ease";
+    img.style.left = cartRect.left + "px";
+    img.style.top = cartRect.top + "px";
+    img.style.width = "30px";
+    img.style.opacity = "0.5";
+  }, 10);
+
+  setTimeout(() => {
+    img.remove();
+    cart.classList.add("cart-bounce");
+    setTimeout(() => cart.classList.remove("cart-bounce"), 300);
+  }, 700);
+}
+
+
+// ==============================
+// CART COUNT IN HEADER
+// ===========================
+
+
+/* UPDATE CART COUNT */
+function updateCartCount() {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  let count = 0;
+
+  cart.forEach(item => {
+    count += item.qty;
+  });
+
+  let badge = document.getElementById("cart-count");
+
+  if (badge) {
+    badge.innerText = count;
+  }
+}
+
+/* RUN ON PAGE LOAD */
+updateCartCount();
+
+
+// TOAST FUNCTION
+function showToast(msg) {
+  let toast = document.getElementById("toast");
+
+  toast.innerText = msg;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2000);
+}
