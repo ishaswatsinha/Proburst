@@ -1,3 +1,8 @@
+<?php
+include __DIR__ . '/../config/database.php';
+$catQuery = $conn->query("SELECT * FROM categories");
+?>
+
 <div class="top-bar">
   Flash Sale is Live. Shop Now.
 </div>
@@ -6,93 +11,85 @@
 
   <!-- LOGO -->
   <div class="logo">
-
     <div class="hamburger" id="hamburger">☰</div>
-    <img src="/proburst/assets/images/logo.png" alt="logo">
+
+    <a href="/proburst/index.php">
+      <img src="/proburst/assets/images/logo.png" alt="logo">
+    </a>
   </div>
 
   <!-- SEARCH -->
   <div class="search-box">
-    <input type="text" placeholder="Search">
+    <input type="text" placeholder="Search products...">
     <span class="search-icon">🔍</span>
   </div>
 
   <!-- ICONS -->
   <div class="nav-icons">
-    <span class="icons"><i class="fa-solid fa-user"></i></span>
-    <span class="icons"><i class="fa-solid fa-heart"></i></span>
+
+    <span class="icons">
+      <i class="fa-solid fa-user"></i>
+    </span>
+
+    <span class="icons">
+      <i class="fa-solid fa-heart"></i>
+    </span>
+
     <a href="/proburst/pages/cart.php" class="icons cart-icon">
-
       <i class="fa-solid fa-cart-shopping"></i>
-
-      <!-- CART COUNT -->
       <span id="cart-count">0</span>
-
     </a>
+
   </div>
 
 </nav>
 
-<!-- MENU BAR -->
+<!-- MENU -->
 <div class="menu-bar">
   <ul>
-    <li>Home</li>
 
-
-    <!-- DROPDOWN -->
-    <a href="pages/shop.php">
-      <li class="dropdown">
-        Products
-        <div class="dropdown-menu">
-
-          <!-- Proteins -->
-          <div class="dropdown-item has-submenu">
-            <span>Proteins ›</span>
-
-            <div class="submenu">
-              <div>Whey Supreme</div>
-              <div>100% Whey</div>
-              <div>Nitro Builder</div>
-              <div>Isoburst Supreme</div>
-              <div>Whey Supreme Ripped</div>
-              <div>Micellar Casein</div>
-              <div>Immunity Protein</div>
-            </div>
-          </div>
-
-          <!-- Gainers -->
-          <div class="dropdown-item has-submenu">
-            <span>Gainers ›</span>
-
-            <div class="submenu">
-              <div>Mass Gainer XXL</div>
-              <div>Lean Mass Gainer</div>
-              <div>Serious Mass</div>
-            </div>
-          </div>
-
-          <!-- Other items -->
-          <div class="dropdown-item"> <span>Pre, Intra & Post Workout ›</span></div>
-          <div class="dropdown-item"> <span>Fat Burners ›</span></div>
-          <div class="dropdown-item"> <span>Vitamins & Minerals ›</span></div>
-
-        </div>
-      </li>
-
-    </a>
-
+    <li><a href="/proburst/index.php">Home</a></li>
+    <li><a href="#">About</a></li>
 
     <li class="dropdown">
-      Mass
+      <a href="/proburst/pages/shop.php">Products</a>
+
       <div class="dropdown-menu">
-        <div>Mass Gainer</div>
-        <div>Weight Gain</div>
+
+        <?php while($cat = $catQuery->fetch_assoc()): ?>
+
+          <div class="dropdown-item has-submenu">
+
+            <span><?php echo $cat['name']; ?> ›</span>
+
+            <div class="submenu">
+
+              <?php
+              $subQuery = $conn->query("SELECT * FROM subcategories WHERE category_id=".$cat['id']);
+              while($sub = $subQuery->fetch_assoc()):
+              ?>
+
+                <a href="/proburst/pages/shop.php?subcategory=<?php echo $sub['id']; ?>">
+                  <div><?php echo $sub['name']; ?></div>
+                </a>
+
+              <?php endwhile; ?>
+
+            </div>
+
+          </div>
+
+        <?php endwhile; ?>
+
       </div>
     </li>
 
-    <li>Vitamins</li>
-    <li>Accessories</li>
+    <li><a href="#">Hot Offers</a></li>
+    <li><a href="#">Best Sellers</a></li>
+    <li><a href="#">Blog</a></li>
+    <li><a href="#">Business Enquiry</a></li>
 
   </ul>
 </div>
+
 <div class="overlay" id="overlay"></div>

@@ -86,6 +86,31 @@
 
 </footer>
 
+<!-- VIDEO SECTION MODAL  -->
+ 
+<div id="reelModal" class="reel-modal">
+
+  <div class="reel-box">
+
+    <span class="close" onclick="closeReel()">×</span>
+
+    <div class="reel-container" id="reelContainer"></div>
+
+  </div>
+
+</div>
+
+
+<!-- INFLUENCER MODAL  -->
+
+<div id="infModal" class="inf-modal">
+
+  <span class="close" onclick="closeInfluencer()">×</span>
+
+  <video id="infVideo" controls autoplay></video>
+
+</div>
+
 <div id="toast"></div>
 
 <script src="/proburst/assets/js/app.js"></script>

@@ -1,7 +1,6 @@
 /* =========================
-   HERO SLIDER (FIXED)
+   HERO SLIDER
 ========================= */
-
 document.querySelectorAll(".hero-slider").forEach(wrapper => {
 
   const slider = wrapper.querySelector(".slider");
@@ -13,7 +12,6 @@ document.querySelectorAll(".hero-slider").forEach(wrapper => {
   let index = 0;
   let interval;
 
-  /* CREATE DOTS */
   if (dotsContainer) {
     dotsContainer.innerHTML = "";
     slides.forEach((_, i) => {
@@ -26,6 +24,7 @@ document.querySelectorAll(".hero-slider").forEach(wrapper => {
   const dots = dotsContainer ? dotsContainer.querySelectorAll("span") : [];
 
   function update() {
+    if (!slider) return;
     slider.style.transform = `translateX(-${index * 100}%)`;
 
     dots.forEach(d => d.classList.remove("active"));
@@ -48,11 +47,9 @@ document.querySelectorAll(".hero-slider").forEach(wrapper => {
     resetAuto();
   }
 
-  /* BUTTONS */
   nextBtn && nextBtn.addEventListener("click", next);
   prevBtn && prevBtn.addEventListener("click", prev);
 
-  /* AUTO SLIDE */
   function startAuto() {
     interval = setInterval(next, 5000);
   }
@@ -63,89 +60,6 @@ document.querySelectorAll(".hero-slider").forEach(wrapper => {
   }
 
   startAuto();
-
-  /* SWIPE */
-  let startX = 0;
-
-  slider.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-  });
-
-  slider.addEventListener("touchend", e => {
-    let endX = e.changedTouches[0].clientX;
-
-    if (startX > endX + 50) next();
-    else if (startX < endX - 50) prev();
-  });
-
-  update();
-});
-
-
-/* =========================
-   RANGE SLIDER (IMAGE + TEXT)
-========================= */
-
-document.querySelectorAll(".range-slider").forEach(wrapper => {
-
-  const track = wrapper.querySelector(".range-track");
-  const items = wrapper.querySelectorAll(".range-item");
-  const dotsContainer = wrapper.querySelector(".range-dots");
-  const nextBtn = wrapper.querySelector(".next");
-  const prevBtn = wrapper.querySelector(".prev");
-
-  let index = 0;
-  let interval;
-
-  /* DOTS */
-  if (dotsContainer) {
-    dotsContainer.innerHTML = "";
-    items.forEach((_, i) => {
-      let dot = document.createElement("span");
-      dot.addEventListener("click", () => goTo(i));
-      dotsContainer.appendChild(dot);
-    });
-  }
-
-  const dots = dotsContainer ? dotsContainer.querySelectorAll("span") : [];
-
-  function update() {
-    track.style.transform = `translateX(-${index * 100}%)`;
-
-    dots.forEach(d => d.classList.remove("active"));
-    if (dots[index]) dots[index].classList.add("active");
-  }
-
-  function next() {
-    index = (index + 1) % items.length;
-    update();
-  }
-
-  function prev() {
-    index = (index - 1 + items.length) % items.length;
-    update();
-  }
-
-  function goTo(i) {
-    index = i;
-    update();
-    resetAuto();
-  }
-
-  nextBtn && nextBtn.addEventListener("click", next);
-  prevBtn && prevBtn.addEventListener("click", prev);
-
-  function startAuto() {
-    interval = setInterval(next, 6000);
-  }
-
-  function resetAuto() {
-    clearInterval(interval);
-    startAuto();
-  }
-
-  startAuto();
-
   update();
 });
 
@@ -153,7 +67,6 @@ document.querySelectorAll(".range-slider").forEach(wrapper => {
 /* =========================
    PRODUCT TABS
 ========================= */
-
 const tabs = document.querySelectorAll(".tab");
 const lists = document.querySelectorAll(".product-list");
 
@@ -167,136 +80,22 @@ tabs.forEach(tab => {
 
     const target = document.getElementById(tab.dataset.tab);
     if (target) target.classList.add("active");
+
   });
 });
 
 
-
-// ===========================
-// FOOTER 
-// ==================================
-
-const cols = document.querySelectorAll('.footer-col');
-
-window.addEventListener('scroll', () => {
-  cols.forEach(col => {
-    let pos = col.getBoundingClientRect().top;
-    if (pos < window.innerHeight - 50) {
-      col.style.opacity = "1";
-      col.style.transform = "translateY(0)";
-    }
-  });
-});
-
-
-// ==============================
-// HAMBURGER MENU (MOBILE)
-// ==================================
-
-
-const hamburger = document.getElementById("hamburger");
-const menu = document.querySelector(".menu-bar");
-const overlay = document.getElementById("overlay");
-
-/* OPEN MENU */
-hamburger.onclick = () => {
-  menu.classList.add("active");
-  overlay.classList.add("active");
-}
-
-/* CLOSE MENU */
-overlay.onclick = () => {
-  menu.classList.remove("active");
-  overlay.classList.remove("active");
-
-  /* CLOSE ALL DROPDOWNS */
-  document.querySelectorAll(".dropdown, .has-submenu").forEach(el => {
-    el.classList.remove("active");
-  });
-}
-
-/* MAIN DROPDOWN */
-document.querySelectorAll(".dropdown").forEach(item => {
-
-  item.addEventListener("click", function (e) {
-
-    if (window.innerWidth < 768) {
-
-      e.stopPropagation();
-
-      /* CLOSE OTHER DROPDOWNS */
-      document.querySelectorAll(".dropdown").forEach(el => {
-        if (el !== this) el.classList.remove("active");
-      });
-
-      /* TOGGLE CURRENT */
-      this.classList.toggle("active");
-    }
-
-  });
-
-});
-
-/* SUBMENU FIX */
-document.querySelectorAll(".has-submenu").forEach(item => {
-
-  item.addEventListener("click", function (e) {
-
-    if (window.innerWidth < 768) {
-
-      e.stopPropagation();
-
-      /* CLOSE OTHER SUBMENUS */
-      document.querySelectorAll(".has-submenu").forEach(el => {
-        if (el !== this) el.classList.remove("active");
-      });
-
-      /* TOGGLE */
-      this.classList.toggle("active");
-
-    }
-
-  });
-
-});
-
-/* CLICK OUTSIDE MENU CLOSE */
-document.addEventListener("click", function (e) {
-
-  if (window.innerWidth < 768) {
-
-    if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
-
-      menu.classList.remove("active");
-      overlay.classList.remove("active");
-
-      document.querySelectorAll(".dropdown, .has-submenu").forEach(el => {
-        el.classList.remove("active");
-      });
-
-    }
-
-  }
-
-});
-
-
-// =====================
-// Add to Cart Function (SHOP PAGE)
-// =========================
-
-
-
-
+/* =========================
+   ADD TO CART (GLOBAL)
+========================= */
 function addToCart(id, name, price, image, btn = null) {
 
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  let existing = cart.find(item => item.id === id);
+  let existing = cart.find(item => item.id == id);
 
   if (existing) {
 
-    /* 🔥 INCREMENT WITH LIMIT */
     if (existing.qty >= 10) {
       showToast("Max quantity reached");
       return;
@@ -307,10 +106,10 @@ function addToCart(id, name, price, image, btn = null) {
   } else {
 
     cart.push({
-      id,
-      name,
-      price,
-      image,
+      id: id,
+      name: name,
+      price: price,
+      image: image,
       qty: 1
     });
 
@@ -319,15 +118,55 @@ function addToCart(id, name, price, image, btn = null) {
   localStorage.setItem("cart", JSON.stringify(cart));
 
   updateCartCount();
-
   animateToCart(image, btn);
-
   showToast("Added to cart 🛒");
 }
 
 
 /* =========================
-   FLY TO CART ANIMATION
+   BUTTON CLICK HANDLER (ALL PAGES)
+========================= */
+document.querySelectorAll('.add-cart-btn').forEach(btn => {
+
+  btn.addEventListener('click', function () {
+
+    const id = parseInt(this.dataset.id);
+    const name = this.dataset.name;
+    const price = parseFloat(this.dataset.price);
+    const image = this.dataset.image;
+
+    addToCart(id, name, price, image, this);
+
+  });
+
+});
+
+
+/* =========================
+   CART COUNT
+========================= */
+function updateCartCount() {
+
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  let count = 0;
+
+  cart.forEach(item => {
+    count += item.qty;
+  });
+
+  let badge = document.getElementById("cart-count");
+
+  if (badge) {
+    badge.innerText = count;
+  }
+}
+
+updateCartCount();
+
+
+/* =========================
+   ANIMATION (FLY TO CART)
 ========================= */
 function animateToCart(image, btn) {
 
@@ -350,6 +189,8 @@ function animateToCart(image, btn) {
 
   let cart = document.querySelector(".cart-icon");
 
+  if (!cart) return;
+
   let cartRect = cart.getBoundingClientRect();
 
   setTimeout(() => {
@@ -368,35 +209,14 @@ function animateToCart(image, btn) {
 }
 
 
-// ==============================
-// CART COUNT IN HEADER
-// ===========================
-
-
-/* UPDATE CART COUNT */
-function updateCartCount() {
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-  let count = 0;
-
-  cart.forEach(item => {
-    count += item.qty;
-  });
-
-  let badge = document.getElementById("cart-count");
-
-  if (badge) {
-    badge.innerText = count;
-  }
-}
-
-/* RUN ON PAGE LOAD */
-updateCartCount();
-
-
-// TOAST FUNCTION
+/* =========================
+   TOAST
+========================= */
 function showToast(msg) {
+
   let toast = document.getElementById("toast");
+
+  if (!toast) return;
 
   toast.innerText = msg;
   toast.classList.add("show");
@@ -404,4 +224,152 @@ function showToast(msg) {
   setTimeout(() => {
     toast.classList.remove("show");
   }, 2000);
+}
+
+
+// ==================================
+// VIDEO SECTION 
+// ==================================
+
+let reels = [];
+let currentIndex = 0;
+
+/* OPEN */
+function openReel(clickedCard) {
+
+  const cards = document.querySelectorAll(".video-card");
+  reels = [];
+
+  cards.forEach(card => {
+    reels.push({
+      id: card.dataset.id,
+      video: card.dataset.video,
+      name: card.dataset.name,
+      price: card.dataset.price,
+      image: card.dataset.image
+    });
+  });
+
+  currentIndex = Array.from(cards).indexOf(clickedCard);
+
+  renderReels();
+
+  document.getElementById("reelModal").style.display = "flex";
+}
+
+/* RENDER */
+function renderReels() {
+
+  const container = document.getElementById("reelContainer");
+  container.innerHTML = "";
+
+  reels.forEach((item, index) => {
+
+    const div = document.createElement("div");
+    div.classList.add("reel");
+
+    div.innerHTML = `
+      <video src="assets/videos/${item.video}" muted ${index === currentIndex ? "autoplay" : ""}></video>
+
+      <div class="reel-overlay">
+        <h3>${item.name}</h3>
+        <p>₹${item.price}</p>
+        <button onclick="addToCart(${item.id}, '${item.name}', ${item.price}, '${item.image}', this)">
+          Add to Cart
+        </button>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+
+  scrollToCurrent();
+  playCurrentVideo();
+}
+
+/* SCROLL POSITION */
+function scrollToCurrent() {
+  const container = document.getElementById("reelContainer");
+  container.scrollTop = currentIndex * container.clientHeight;
+}
+
+/* PLAY CONTROL */
+function playCurrentVideo() {
+
+  const videos = document.querySelectorAll(".reel video");
+
+  videos.forEach((vid, i) => {
+    if (i === currentIndex) {
+      vid.play();
+    } else {
+      vid.pause();
+    }
+  });
+}
+
+/* SCROLL DETECT */
+document.addEventListener("DOMContentLoaded", () => {
+
+  const container = document.getElementById("reelContainer");
+
+  container.addEventListener("scroll", () => {
+
+    const index = Math.round(container.scrollTop / container.clientHeight);
+
+    if (index !== currentIndex) {
+      currentIndex = index;
+      playCurrentVideo();
+    }
+
+  });
+
+});
+
+/* AUTO NEXT */
+document.addEventListener("ended", (e) => {
+
+  if (e.target.tagName === "VIDEO") {
+
+    if (currentIndex < reels.length - 1) {
+      currentIndex++;
+      scrollToCurrent();
+      playCurrentVideo();
+    }
+
+  }
+
+}, true);
+
+/* CLOSE */
+function closeReel() {
+  document.getElementById("reelModal").style.display = "none";
+
+  document.querySelectorAll(".reel video").forEach(v => v.pause());
+}
+
+// ====================================
+//  INFO MODAL 
+// =====================================
+
+function openInfluencer(video) {
+
+  const modal = document.getElementById("infModal");
+  const vid = document.getElementById("infVideo");
+
+  vid.src = "assets/videos/" + video;
+
+  modal.style.display = "flex";
+
+  vid.play();
+}
+
+function closeInfluencer() {
+
+  const modal = document.getElementById("infModal");
+  const vid = document.getElementById("infVideo");
+
+  vid.pause();
+  vid.src = "";
+
+  modal.style.display = "none";
 }

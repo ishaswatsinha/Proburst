@@ -2,6 +2,22 @@
 include '../config/database.php';
 
 /* =========================
+   FETCH CATEGORIES + SUBCATEGORIES
+========================= */
+
+/* GET CATEGORIES */
+$categoriesData = $conn->query("SELECT * FROM categories");
+
+/* GET SUBCATEGORIES GROUPED */
+$subcategoriesData = [];
+
+$subQuery = $conn->query("SELECT * FROM subcategories");
+
+while ($sub = $subQuery->fetch_assoc()) {
+  $subcategoriesData[$sub['category_id']][] = $sub;
+}
+
+/* =========================
    FILTER LOGIC
 ========================= */
 
@@ -11,6 +27,12 @@ $where = [];
 if (!empty($_GET['category'])) {
   $categories = implode(",", $_GET['category']);
   $where[] = "category_id IN ($categories)";
+}
+
+/* SUBCATEGORY FILTER */
+if (!empty($_GET['subcategory'])) {
+  $subcategory = (int)$_GET['subcategory'];
+  $where[] = "subcategory_id = $subcategory";
 }
 
 /* PRICE FILTER */
@@ -52,59 +74,74 @@ $result = $conn->query($sql);
 
 <div class="shop-page">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
 
-    <form method="GET">
+  <form method="GET">
 
-      <h3>CATEGORIES</h3>
+    <h3 class="sidebar-title">CATEGORIES</h3>
 
-      <label>
-        <input type="checkbox" name="category[]" value="1" <?php if (isset($_GET['category']) && in_array(1, $_GET['category']))
-          echo 'checked'; ?>>
-        Protein
-      </label>
+    <?php while($cat = $categoriesData->fetch_assoc()): ?>
 
-      <label>
-        <input type="checkbox" name="category[]" value="2" <?php if (isset($_GET['category']) && in_array(2, $_GET['category']))
-          echo 'checked'; ?>>
-        Creatine
-      </label>
+      <div class="category-block">
 
-      <label>
-        <input type="checkbox" name="category[]" value="3" <?php if (isset($_GET['category']) && in_array(3, $_GET['category']))
-          echo 'checked'; ?>>
-        Mass
-      </label>
+        <!-- CATEGORY HEADER -->
+        <div class="category-header" onclick="toggleCategory(this)">
+          <span><?php echo $cat['name']; ?></span>
+          <span class="sidearrow">›</span>
+        </div>
 
-      <br><br>
+        <!-- SUBCATEGORIES -->
+        <div class="subcategory-list">
 
-      <h4>PRICE</h4>
+          <?php if (!empty($subcategoriesData[$cat['id']])): ?>
+            <?php foreach($subcategoriesData[$cat['id']] as $sub): ?>
 
-      <label>
-        <input type="radio" name="price" value="low" <?php if (isset($_GET['price']) && $_GET['price'] == 'low')
-          echo 'checked'; ?>>
-        Below ₹1000
-      </label>
+              <label class="subcategory-item">
 
-      <label>
-        <input type="radio" name="price" value="mid" <?php if (isset($_GET['price']) && $_GET['price'] == 'mid')
-          echo 'checked'; ?>>
-        ₹1000 - ₹3000
-      </label>
+                <input type="radio" name="subcategory" value="<?php echo $sub['id']; ?>"
+                <?php if (isset($_GET['subcategory']) && $_GET['subcategory'] == $sub['id']) echo 'checked'; ?>>
 
-      <label>
-        <input type="radio" name="price" value="high" <?php if (isset($_GET['price']) && $_GET['price'] == 'high')
-          echo 'checked'; ?>>
-        Above ₹3000
-      </label>
+                <?php echo $sub['name']; ?>
 
-    </form>
+              </label>
 
-  </aside>
+            <?php endforeach; ?>
+          <?php endif; ?>
+
+        </div>
+
+      </div>
+
+    <?php endwhile; ?>
+
+    <!-- PRICE -->
+    <h4 class="sidebar-subtitle">PRICE</h4>
+
+    <label class="price-item">
+      <input type="radio" name="price" value="low"
+      <?php if (isset($_GET['price']) && $_GET['price']=='low') echo 'checked'; ?>>
+      Below ₹1000
+    </label>
+
+    <label class="price-item">
+      <input type="radio" name="price" value="mid"
+      <?php if (isset($_GET['price']) && $_GET['price']=='mid') echo 'checked'; ?>>
+      ₹1000 - ₹3000
+    </label>
+
+    <label class="price-item">
+      <input type="radio" name="price" value="high"
+      <?php if (isset($_GET['price']) && $_GET['price']=='high') echo 'checked'; ?>>
+      Above ₹3000
+    </label>
+
+  </form>
+
+</aside>
 
 
-  <!-- RIGHT CONTENT -->
+  <!-- PRODUCTS -->
   <div class="products-section">
 
     <!-- TOP BAR -->
@@ -112,17 +149,33 @@ $result = $conn->query($sql);
       <h2>Shop By Products (<?php echo $result->num_rows; ?>)</h2>
 
       <form method="GET">
+
+        <!-- PRESERVE FILTERS -->
+        <?php
+        if (!empty($_GET['category'])) {
+          foreach ($_GET['category'] as $cat) {
+            echo '<input type="hidden" name="category[]" value="'.$cat.'">';
+          }
+        }
+
+        if (!empty($_GET['subcategory'])) {
+          echo '<input type="hidden" name="subcategory" value="'.$_GET['subcategory'].'">';
+        }
+
+        if (!empty($_GET['price'])) {
+          echo '<input type="hidden" name="price" value="'.$_GET['price'].'">';
+        }
+        ?>
+
         <select name="sort" onchange="this.form.submit()">
 
           <option value="">Sort</option>
 
-          <option value="low" <?php if ($sort == 'low')
-            echo 'selected'; ?>>
+          <option value="low" <?php if ($sort == 'low') echo 'selected'; ?>>
             Price Low to High
           </option>
 
-          <option value="high" <?php if ($sort == 'high')
-            echo 'selected'; ?>>
+          <option value="high" <?php if ($sort == 'high') echo 'selected'; ?>>
             Price High to Low
           </option>
 
@@ -147,6 +200,7 @@ $result = $conn->query($sql);
                 <?php echo $row['name']; ?>
               </a>
             </h3>
+
             <div class="rating">⭐⭐⭐⭐☆</div>
 
             <p class="price">
@@ -154,13 +208,14 @@ $result = $conn->query($sql);
             </p>
 
             <small><?php echo $row['stock']; ?> in stock</small>
+
             <button onclick="addToCart(
-  <?php echo $row['id']; ?>,
-  '<?php echo $row['name']; ?>',
-  <?php echo $row['price']; ?>,
-  '<?php echo $row['image']; ?>',
-  this
-)">
+              <?php echo $row['id']; ?>,
+              '<?php echo $row['name']; ?>',
+              <?php echo $row['price']; ?>,
+              '<?php echo $row['image']; ?>',
+              this
+            )">
               Add to Cart
             </button>
 
@@ -182,11 +237,11 @@ $result = $conn->query($sql);
 
 <?php include '../includes/footer.php'; ?>
 
-<!-- AUTO FILTER SUBMIT -->
+<!-- AUTO FILTER -->
 <script>
-  document.querySelectorAll("input").forEach(el => {
-    el.addEventListener("change", () => {
-      el.form.submit();
-    });
+document.querySelectorAll("input").forEach(el => {
+  el.addEventListener("change", () => {
+    el.form.submit();
   });
+});
 </script>
