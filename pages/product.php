@@ -45,13 +45,13 @@ $product = $result->fetch_assoc();
         </p>
 
         <button onclick="addToCart(
-  <?php echo $row['id']; ?>,
-  '<?php echo $row['name']; ?>',
-  <?php echo $row['price']; ?>,
-  '<?php echo $row['image']; ?>',
+  <?php echo $product['id']; ?>,
+  '<?php echo addslashes($product['name']); ?>',
+  <?php echo $product['price']; ?>,
+  '<?php echo $product['image']; ?>',
   this
 )">
-Add to Cart
+  Add to Cart
 </button>
     </div>
 

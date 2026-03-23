@@ -1111,30 +1111,60 @@ CART AND TOAST
 
 /* OVERLAY */
 .reel-overlay {
+  color: white;
   position: absolute;
   bottom: 20px;
   left: 15px;
   right: 15px;
-  color: white;
+  z-index: 10; /* VERY IMPORTANT */
 }
 
+
+/* REEL BUTTON */
 .reel-overlay button {
-  padding: 8px 15px;
-  background: #00c853;
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: linear-gradient(45deg, #ff6a00, #ff3c00);
   border: none;
-  color: white;
+  color: #fff;
+  border-radius: 5px;
   cursor: pointer;
 }
 
+.reel-overlay button:hover {
+  transform: scale(1.05);
+}
 /* MUTE BUTTON */
 .mute-btn {
   position: absolute;
   bottom: 80px;
   right: 15px;
-  font-size: 22px;
-  color: white;
+  right: 15px;
+  z-index: 20; /* ABOVE VIDEO */
   cursor: pointer;
 }
+/* REEL BUTTON */
+.reel-overlay button {
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: linear-gradient(45deg, #ff6a00, #ff3c00);
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reel-overlay button:hover {
+  transform: scale(1.05);
+}
+
+/* FIX CLICK ISSUE */
+.reel video {
+  pointer-events: none;
+}
+
+
+
 
 /* =========================
    INFLUENCER SECTION

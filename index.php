@@ -93,7 +93,7 @@ $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
             ₹<?php echo number_format($row['price']); ?>
           </div>
 
-    <button 
+    <!-- <button 
   class="add-cart-btn"
   data-id="<?php echo $row['id']; ?>"
   data-name="<?php echo htmlspecialchars($row['name']); ?>"
@@ -101,7 +101,17 @@ $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
   data-image="<?php echo $row['image']; ?>"
 >
   Add to Cart
-</button>
+</button> -->
+
+<button onclick="addToCart(
+        <?php echo $row['id']; ?>,
+        '<?php echo $row['name']; ?>',
+        <?php echo $row['price']; ?>,
+        '<?php echo $row['image']; ?>',
+        this
+      )">
+        Add to Cart
+      </button>
 
         </div>
 
@@ -133,7 +143,7 @@ $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
             ₹<?php echo number_format($row['price']); ?>
           </div>
 
-          <button 
+          <!-- <button 
   class="add-cart-btn"
   data-id="<?php echo $row['id']; ?>"
   data-name="<?php echo htmlspecialchars($row['name']); ?>"
@@ -141,7 +151,16 @@ $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
   data-image="<?php echo $row['image']; ?>"
 >
   Add to Cart
-</button>
+</button> -->
+<button onclick="addToCart(
+        <?php echo $row['id']; ?>,
+        '<?php echo $row['name']; ?>',
+        <?php echo $row['price']; ?>,
+        '<?php echo $row['image']; ?>',
+        this
+      )">
+        Add to Cart
+      </button>
 
         </div>
 
