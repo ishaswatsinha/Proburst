@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded", () => {
+
 /* =========================
    HERO SLIDER
 ========================= */
@@ -12,6 +14,8 @@ document.querySelectorAll(".hero-slider").forEach(wrapper => {
   let index = 0;
   let interval;
 
+  if (!slider || slides.length === 0) return;
+
   if (dotsContainer) {
     dotsContainer.innerHTML = "";
     slides.forEach((_, i) => {
@@ -24,9 +28,7 @@ document.querySelectorAll(".hero-slider").forEach(wrapper => {
   const dots = dotsContainer ? dotsContainer.querySelectorAll("span") : [];
 
   function update() {
-    if (!slider) return;
     slider.style.transform = `translateX(-${index * 100}%)`;
-
     dots.forEach(d => d.classList.remove("active"));
     if (dots[index]) dots[index].classList.add("active");
   }
@@ -80,57 +82,18 @@ tabs.forEach(tab => {
 
     const target = document.getElementById(tab.dataset.tab);
     if (target) target.classList.add("active");
-
   });
 });
 
-
 /* =========================
-   ADD TO CART (GLOBAL)
+   ADD TO CART BUTTON FIX
 ========================= */
-function addToCart(id, name, price, image, btn = null) {
 
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+document.querySelectorAll(".add-cart-btn").forEach(btn => {
 
-  let existing = cart.find(item => item.id == id);
+  btn.addEventListener("click", function() {
 
-  if (existing) {
-
-    if (existing.qty >= 10) {
-      showToast("Max quantity reached");
-      return;
-    }
-
-    existing.qty += 1;
-
-  } else {
-
-    cart.push({
-      id: id,
-      name: name,
-      price: price,
-      image: image,
-      qty: 1
-    });
-
-  }
-
-  localStorage.setItem("cart", JSON.stringify(cart));
-
-  updateCartCount();
-  animateToCart(image, btn);
-  showToast("Added to cart 🛒");
-}
-
-
-/* =========================
-   BUTTON CLICK HANDLER (ALL PAGES)
-========================= */
-document.querySelectorAll('.add-cart-btn').forEach(btn => {
-
-  btn.addEventListener('click', function () {
-
-    const id = parseInt(this.dataset.id);
+    const id = this.dataset.id;
     const name = this.dataset.name;
     const price = parseFloat(this.dataset.price);
     const image = this.dataset.image;
@@ -143,30 +106,49 @@ document.querySelectorAll('.add-cart-btn').forEach(btn => {
 
 
 /* =========================
-   CART COUNT
+   ADD TO CART
 ========================= */
-function updateCartCount() {
+window.addToCart = function(id, name, price, image, btn = null) {
 
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
+  let existing = cart.find(item => item.id == id);
+
+  if (existing) {
+    if (existing.qty >= 10) {
+      showToast("Max quantity reached");
+      return;
+    }
+    existing.qty += 1;
+  } else {
+    cart.push({ id, name, price, image, qty: 1 });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  updateCartCount();
+  animateToCart(image, btn);
+  showToast("Added to cart 🛒");
+};
+
+
+/* =========================
+   CART COUNT
+========================= */
+function updateCartCount() {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
   let count = 0;
 
-  cart.forEach(item => {
-    count += item.qty;
-  });
+  cart.forEach(item => count += item.qty);
 
   let badge = document.getElementById("cart-count");
-
-  if (badge) {
-    badge.innerText = count;
-  }
+  if (badge) badge.innerText = count;
 }
-
 updateCartCount();
 
 
 /* =========================
-   ANIMATION (FLY TO CART)
+   ANIMATION TO CART
 ========================= */
 function animateToCart(image, btn) {
 
@@ -178,17 +160,14 @@ function animateToCart(image, btn) {
   img.style.position = "fixed";
   img.style.width = "80px";
   img.style.zIndex = "9999";
-  img.style.borderRadius = "10px";
 
   let rect = btn.getBoundingClientRect();
-
   img.style.left = rect.left + "px";
   img.style.top = rect.top + "px";
 
   document.body.appendChild(img);
 
   let cart = document.querySelector(".cart-icon");
-
   if (!cart) return;
 
   let cartRect = cart.getBoundingClientRect();
@@ -201,11 +180,7 @@ function animateToCart(image, btn) {
     img.style.opacity = "0.5";
   }, 10);
 
-  setTimeout(() => {
-    img.remove();
-    cart.classList.add("cart-bounce");
-    setTimeout(() => cart.classList.remove("cart-bounce"), 300);
-  }, 700);
+  setTimeout(() => img.remove(), 700);
 }
 
 
@@ -213,163 +188,297 @@ function animateToCart(image, btn) {
    TOAST
 ========================= */
 function showToast(msg) {
-
   let toast = document.getElementById("toast");
-
   if (!toast) return;
 
   toast.innerText = msg;
   toast.classList.add("show");
 
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 2000);
+  setTimeout(() => toast.classList.remove("show"), 2000);
 }
 
 
-// ==================================
-// VIDEO SECTION 
-// ==================================
+/* =========================
+   VIDEO REELS
+========================= */
+let allVideos = [];
 
-let reels = [];
-let currentIndex = 0;
-
-/* OPEN */
-function openReel(clickedCard) {
-
-  const cards = document.querySelectorAll(".video-card");
-  reels = [];
-
-  cards.forEach(card => {
-    reels.push({
-      id: card.dataset.id,
-      video: card.dataset.video,
-      name: card.dataset.name,
-      price: card.dataset.price,
-      image: card.dataset.image
-    });
+document.querySelectorAll(".video-card").forEach(card => {
+  allVideos.push({
+    id: card.dataset.id,
+    video: card.dataset.video,
+    name: card.dataset.name,
+    price: card.dataset.price,
+    image: card.dataset.image
   });
+});
 
-  currentIndex = Array.from(cards).indexOf(clickedCard);
+window.openReel = function(card) {
 
-  renderReels();
-
-  document.getElementById("reelModal").style.display = "flex";
-}
-
-/* RENDER */
-function renderReels() {
-
+  const modal = document.getElementById("reelModal");
   const container = document.getElementById("reelContainer");
+
+  if (!modal || !container) return;
+
   container.innerHTML = "";
 
-  reels.forEach((item, index) => {
-
-    const div = document.createElement("div");
-    div.classList.add("reel");
-
-    div.innerHTML = `
-      <video src="assets/videos/${item.video}" muted ${index === currentIndex ? "autoplay" : ""}></video>
-
-      <div class="reel-overlay">
-        <h3>${item.name}</h3>
-        <p>₹${item.price}</p>
-        <button onclick="addToCart(${item.id}, '${item.name}', ${item.price}, '${item.image}', this)">
-          Add to Cart
-        </button>
+  allVideos.forEach(v => {
+    container.innerHTML += `
+      <div class="reel">
+        <video playsinline>
+          <source src="assets/videos/${v.video}">
+        </video>
+        <div class="mute-btn" onclick="toggleMute(this)">🔇</div>
+        <div class="reel-overlay">
+          <h3>${v.name}</h3>
+          <p>₹${v.price}</p>
+        </div>
       </div>
     `;
-
-    container.appendChild(div);
   });
 
-  scrollToCurrent();
-  playCurrentVideo();
-}
+  modal.style.display = "flex";
+  document.body.style.overflow = "hidden";
 
-/* SCROLL POSITION */
-function scrollToCurrent() {
-  const container = document.getElementById("reelContainer");
-  container.scrollTop = currentIndex * container.clientHeight;
-}
+  observeVideos();
+};
 
-/* PLAY CONTROL */
-function playCurrentVideo() {
+window.closeReel = function() {
+  const modal = document.getElementById("reelModal");
+  if (!modal) return;
+
+  modal.style.display = "none";
+  document.body.style.overflow = "auto";
+
+  document.querySelectorAll(".reel video").forEach(v => v.pause());
+};
+
+
+function observeVideos() {
 
   const videos = document.querySelectorAll(".reel video");
 
-  videos.forEach((vid, i) => {
-    if (i === currentIndex) {
-      vid.play();
-    } else {
-      vid.pause();
-    }
-  });
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.play();
+      } else {
+        entry.target.pause();
+      }
+    });
+  }, { threshold: 0.7 });
+
+  videos.forEach(v => observer.observe(v));
 }
 
-/* SCROLL DETECT */
-document.addEventListener("DOMContentLoaded", () => {
 
-  const container = document.getElementById("reelContainer");
+window.toggleMute = function(btn) {
+  const video = btn.closest(".reel").querySelector("video");
+  video.muted = !video.muted;
+  btn.innerText = video.muted ? "🔇" : "🔊";
+};
 
-  container.addEventListener("scroll", () => {
 
-    const index = Math.round(container.scrollTop / container.clientHeight);
+/* =========================
+   CATEGORY SCROLL
+========================= */
+window.scrollCategory = function(amount) {
+  const slider = document.getElementById("catSlider");
+  if (!slider) return;
 
-    if (index !== currentIndex) {
-      currentIndex = index;
-      playCurrentVideo();
-    }
+  slider.scrollBy({ left: amount, behavior: "smooth" });
+};
 
-  });
+
+/* =========================
+   REVIEW SCROLL
+========================= */
+window.scrollReviews = function(amount) {
+  const slider = document.getElementById("reviewSlider");
+  if (!slider) return;
+
+  slider.scrollBy({ left: amount, behavior: "smooth" });
+};
+
+
+/* =========================
+   WHY COUNTER
+========================= */
+const counters = document.querySelectorAll(".counter");
+
+if (counters.length > 0) {
+
+  const startCounter = (counter) => {
+    const target = +counter.dataset.target;
+    let count = 0;
+
+    const update = () => {
+      count += target / 100;
+
+      if (count < target) {
+        counter.innerText = Math.ceil(count);
+        requestAnimationFrame(update);
+      } else {
+        counter.innerText = target;
+      }
+    };
+
+    update();
+  };
+
+  const whySection = document.querySelector(".why-pro-section");
+
+  if (whySection) {
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        counters.forEach(startCounter);
+      }
+    });
+
+    observer.observe(whySection);
+  }
+}
 
 });
 
-/* AUTO NEXT */
-document.addEventListener("ended", (e) => {
 
-  if (e.target.tagName === "VIDEO") {
+/* =========================
+   FRANCHISE POPUP
+========================= */
 
-    if (currentIndex < reels.length - 1) {
-      currentIndex++;
-      scrollToCurrent();
-      playCurrentVideo();
+function openFranchiseForm() {
+  document.getElementById("franchiseModal").style.display = "flex";
+}
+
+function closeFranchiseForm() {
+  document.getElementById("franchiseModal").style.display = "none";
+}
+
+/* SUBMIT */
+
+const BASE_URL = window.location.origin + "/proburst"; // DYNAMIC BASE URL
+const form = document.getElementById("franchiseForm");
+
+if (form) {
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    let formData = new FormData(this);
+
+    fetch(BASE_URL+ "/pages/save-lead.php", {   // ✅ FIXED PATH
+      method: "POST",
+      body: formData
+    })
+    .then(res => res.text())
+    .then(res => {
+
+      console.log(res); // 🔥 DEBUG
+
+      if (res.includes("success")) {
+
+        let phone = formData.get("phone");
+
+        let msg = encodeURIComponent(
+          "Hi, I am interested in Proburst Franchise. My number: " + phone
+        );
+
+        window.location.href = `https://wa.me/91YOURNUMBER?text=${msg}`;
+
+      } else {
+        alert("Error: " + res);
+      }
+
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Something went wrong!");
+    });
+
+  });
+
+}
+
+// =====================================
+// HAMBERGER MENU
+// =======================================
+
+
+const hamburger = document.getElementById("hamburger");
+const menu = document.querySelector(".menu-bar");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("menuClose");
+
+/* OPEN MENU */
+hamburger.addEventListener("click", () => {
+  menu.classList.add("active");
+  overlay.classList.add("active");
+});
+
+/* CLOSE BUTTON */
+closeBtn.addEventListener("click", () => {
+  menu.classList.remove("active");
+  overlay.classList.remove("active");
+});
+
+/* CLICK OUTSIDE */
+overlay.addEventListener("click", () => {
+  menu.classList.remove("active");
+  overlay.classList.remove("active");
+});
+
+/* =========================
+   DROPDOWN (FIXED)
+========================= */
+
+/* CATEGORY DROPDOWN */
+document.querySelectorAll(".dropdown").forEach(drop => {
+  drop.addEventListener("click", function(e) {
+
+    if (window.innerWidth < 768) {
+
+      /* prevent link redirect */
+      e.preventDefault();
+
+      this.classList.toggle("active");
+
     }
 
-  }
+  });
+});
 
-}, true);
+/* SUBMENU */
+document.querySelectorAll(".has-submenu").forEach(sub => {
+  sub.addEventListener("click", function(e) {
 
-/* CLOSE */
-function closeReel() {
-  document.getElementById("reelModal").style.display = "none";
+    if (window.innerWidth < 768) {
 
-  document.querySelectorAll(".reel video").forEach(v => v.pause());
-}
+      e.stopPropagation(); // important fix
 
-// ====================================
-//  INFO MODAL 
-// =====================================
+      this.classList.toggle("active");
 
-function openInfluencer(video) {
+    }
 
-  const modal = document.getElementById("infModal");
-  const vid = document.getElementById("infVideo");
+  });
+});
 
-  vid.src = "assets/videos/" + video;
 
-  modal.style.display = "flex";
+/* =========================
+   HOT OFFERS SLIDER
+========================= */
 
-  vid.play();
-}
+const slider = document.getElementById("offersSlider");
+const next = document.querySelector(".offer-nav.next");
+const prev = document.querySelector(".offer-nav.prev");
 
-function closeInfluencer() {
+if (next && prev && slider) {
 
-  const modal = document.getElementById("infModal");
-  const vid = document.getElementById("infVideo");
+  next.addEventListener("click", () => {
+    slider.scrollBy({ left: 300, behavior: "smooth" });
+  });
 
-  vid.pause();
-  vid.src = "";
+  prev.addEventListener("click", () => {
+    slider.scrollBy({ left: -300, behavior: "smooth" });
+  });
 
-  modal.style.display = "none";
 }

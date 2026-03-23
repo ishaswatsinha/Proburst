@@ -1,98 +1,93 @@
-<footer class="footer">
+<footer class="pro-footer">
 
-    <div class="footer-container">
+  <div class="footer-container">
 
-        <!-- COLUMN 1 -->
-        <div class="footer-col">
-            <h3>TOP SELLING PRODUCTS</h3>
-            <ul>
-                <li><a href="#">Proteins</a></li>
-                <li><a href="#">Weight Gainer</a></li>
-                <li><a href="#">Advanced Fitness</a></li>
-                <li><a href="#">More From Glanbia</a></li>
-            </ul>
+    <!-- PRODUCTS -->
+    <div class="footer-col">
+      <h4>Products</h4>
+      <a href="#">Biozyme Performance Whey</a>
+      <a href="#">Raw Whey Protein</a>
+      <a href="#">Super Gainer XXL</a>
+      <a href="#">Creatine</a>
+      <a href="#">Fish Oil</a>
+      <a href="#">Protein Bars</a>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="footer-col">
+      <h4>Categories</h4>
+      <a href="#">Proteins</a>
+      <a href="#">Gainers</a>
+      <a href="#">Pre/Post Workout</a>
+      <a href="#">Vitamins</a>
+      <a href="#">Fat Loss</a>
+      <a href="#">Accessories</a>
+    </div>
+
+    <!-- LINKS -->
+    <div class="footer-col">
+      <h4>Useful Links</h4>
+      <a href="#">About Us</a>
+      <a href="#">FAQs</a>
+      <a href="#">Blog</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Return Policy</a>
+      <a href="#">Contact Us</a>
+    </div>
+
+    <!-- RIGHT SECTION -->
+    <div class="footer-col newsletter">
+
+      <h4>Subscribe to Newsletter</h4>
+
+      <div class="subscribe-box">
+        <input type="email" placeholder="Your Email">
+        <button>Submit</button>
+      </div>
+
+      <div class="contact-info">
+        <p><i class="fa-solid fa-phone"></i> +91 85277 32632</p>
+        <p><i class="fa-solid fa-envelope"></i> info@proburst.com</p>
+      </div>
+
+      <div class="socials">
+        <i class="fa-brands fa-instagram"></i>
+        <i class="fa-brands fa-linkedin-in"></i>
+        <i class="fa-brands fa-twitter"></i>
+        <i class="fa-brands fa-youtube"></i>
+        <i class="fa-brands fa-facebook-f"></i>
+      </div>
+
+      <div class="payments">
+        <p>✔ 100% Safe & Secure payments</p>
+        <div class="pay-icons">
+          <img src="assets/images/upi.png" alt="payments">
+          <img src="assets/images/visa.png" alt="payments">
+          <img src="assets/images/master.png" alt="payments">
+          <img src="assets/images/netbanking.png" alt="payments">
+          <img src="assets/images/emi.png" alt="payments">
+          <img src="assets/images/cod.png" alt="payments">
         </div>
-
-        <!-- COLUMN 2 -->
-        <div class="footer-col">
-            <h3>CUSTOMER SERVICE</h3>
-            <ul>
-                <li><a href="#">FAQs</a></li>
-                <li><a href="#">Return Policy</a></li>
-                <li><a href="#">Contact Us</a></li>
-                <li><a href="#">Track Your Order</a></li>
-            </ul>
-        </div>
-
-        <!-- COLUMN 3 -->
-        <div class="footer-col">
-            <h3>ABOUT OPTIMUM NUTRITION</h3>
-            <ul>
-                <li><a href="#">Our Quality</a></li>
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">Sustainability</a></li>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms & Conditions</a></li>
-                <li><a href="#">Sitemap</a></li>
-            </ul>
-        </div>
-
-        <!-- COLUMN 4 -->
-        <div class="footer-col">
-            <h3>EXPLORE</h3>
-            <ul>
-                <li><a href="#">AlwaysON Club</a></li>
-                <li><a href="#">Advice</a></li>
-                <li><a href="#">Athletes</a></li>
-                <li><a href="#">Optimum Coach</a></li>
-                <li><a href="#">Recipes</a></li>
-                <li><a href="#">Shop By Product</a></li>
-                <li><a href="#">Shop By Goal</a></li>
-            </ul>
-        </div>
-
-        <!-- COLUMN 5 -->
-        <div class="footer-col">
-            <h3>NEED HELP?</h3>
-            <p>011 - 49594959</p>
-            <button class="whatsapp-btn">Chat with us</button>
-            <p>indiacustomercare@glanbia.com</p>
-            <p>Brand Authorized Offline Stores</p>
-        </div>
-
-        <!-- COLUMN 6 -->
-        <div class="footer-col">
-            <h3>FOLLOW US</h3>
-            <div class="social-icons">
-                <span>f</span>
-                <span>📷</span>
-                <span>▶</span>
-                <span>in</span>
-            </div>
-        </div>
+      </div>
 
     </div>
 
-    <!-- DISCLAIMER -->
-    <div class="footer-disclaimer">
-        <p>1. These statements have not been evaluated by the FSSAI or any governing authority.</p>
-        <p>2. When used over time in combination with regular resistance exercise.</p>
-    </div>
+  </div>
 
-    <!-- BOTTOM -->
-    <div class="footer-bottom">
-        <p>©2026 Optimum Nutrition. All Rights Reserved.</p>
-    </div>
+  <!-- BOTTOM -->
+  <div class="footer-bottom">
+    <p>© 2026 Proburst. All Rights Reserved.</p>
+  </div>
 
 </footer>
 
 <!-- VIDEO SECTION MODAL  -->
  
-<div id="reelModal" class="reel-modal">
+<div class="reel-modal" id="reelModal">
 
   <div class="reel-box">
 
-    <span class="close" onclick="closeReel()">×</span>
+    <span class="close" id="closeReelBtn">×</span>
 
     <div class="reel-container" id="reelContainer"></div>
 

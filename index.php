@@ -7,6 +7,7 @@ include 'config/database.php';
 $best = $conn->query("SELECT * FROM products ORDER BY id DESC LIMIT 6");
 $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
 ?>
+
 <section class="hero-slider">
 
   <div class="slider">
@@ -54,9 +55,7 @@ $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
 
 </section>
 
-<!-- products-section -->
-
-
+<!-- PRODUCT SELLER SECTION -->
 
 <section class="products-section">
 
@@ -76,7 +75,7 @@ $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
 
         <div class="product-card">
 
-          <div class="badge">FREE GIFT</div>
+          <!-- <div class="badge">FREE GIFT</div> -->
 
           <div class="img-box">
             <img src="assets/images/<?php echo $row['image']; ?>">
@@ -153,6 +152,61 @@ $new = $conn->query("SELECT * FROM products ORDER BY created_at DESC LIMIT 6");
   </div>
 
 </section>
+<!-- ======================
+HOT DEALS SECTION
+======================= -->
+<section class="hot-offers">
+
+  <h2 class="section-title">🔥 Hot Offers</h2>
+
+  <div class="offers-wrapper">
+
+    <!-- LEFT BUTTON -->
+    <button class="offer-nav prev">❮</button>
+
+    <!-- SLIDER -->
+    <div class="offers-container" id="offersSlider">
+
+      <?php
+      $offers = $conn->query("SELECT * FROM products ORDER BY RAND() LIMIT 8");
+      while($row = $offers->fetch_assoc()):
+      ?>
+
+      <div class="offer-card">
+
+        <div class="offer-badge">SALE</div>
+
+        <img src="assets/images/<?php echo $row['image']; ?>">
+
+        <h3><?php echo $row['name']; ?></h3>
+
+        <p class="offer-price">
+          ₹<?php echo number_format($row['price']); ?>
+          <span>₹<?php echo number_format($row['price'] + 500); ?></span>
+        </p>
+
+        <button onclick="addToCart(
+          <?php echo $row['id']; ?>,
+          <?php echo json_encode($row['name']); ?>,
+          <?php echo (float)$row['price']; ?>,
+          <?php echo json_encode($row['image']); ?>,
+          this
+        )">
+          Grab Deal →
+        </button>
+
+      </div>
+
+      <?php endwhile; ?>
+
+    </div>
+
+    <!-- RIGHT BUTTON -->
+    <button class="offer-nav next">❯</button>
+
+  </div>
+
+</section>
 
 <!-- ============= CATEGORIES SECTION ============= -->
 <?php
@@ -163,27 +217,32 @@ $cats = $conn->query("SELECT * FROM categories");
 
   <h2 class="section-title">Shop by Category</h2>
 
-  <div class="categories-grid">
+  <div class="category-wrapper">
 
-    <?php while($cat = $cats->fetch_assoc()): ?>
+    <button class="scroll-btn left" onclick="scrollCategory(-300)">‹</button>
 
-      <a href="pages/shop.php?category[]=<?php echo $cat['id']; ?>" class="category-card">
+    <div class="categories-slider" id="catSlider">
 
-        <div class="category-image">
+      <?php while($cat = $cats->fetch_assoc()): ?>
 
-          <!-- TEMP IMAGE (you can map later from DB) -->
-          <img src="assets/images/category<?php echo $cat['id']; ?>.webp" alt="">
+        <a href="pages/shop.php?category[]=<?php echo $cat['id']; ?>" class="category-card">
 
-        </div>
+          <div class="category-image">
+            <img src="assets/images/category<?php echo $cat['id']; ?>.webp" alt="">
+          </div>
 
-        <div class="category-overlay">
-          <h3><?php echo strtoupper($cat['name']); ?></h3>
-          <span>Shop Now →</span>
-        </div>
+          <div class="category-overlay">
+            <h3><?php echo strtoupper($cat['name']); ?></h3>
+            <span>Shop Now →</span>
+          </div>
 
-      </a>
+        </a>
 
-    <?php endwhile; ?>
+      <?php endwhile; ?>
+
+    </div>
+
+    <button class="scroll-btn right" onclick="scrollCategory(300)">›</button>
 
   </div>
 
@@ -193,7 +252,6 @@ $cats = $conn->query("SELECT * FROM categories");
 <!-- ================
 VIDEO SECTION 
 ================== -->
-
 <?php
 $videos = $conn->query("
   SELECT videos.*, products.id as pid, products.name, products.price, products.image
@@ -204,7 +262,7 @@ $videos = $conn->query("
 
 <section class="video-section">
 
-  <h2 class="section-title">WATCH & SHOP</h2>
+  <h2 class="section-title">Shop Our Most Loved Products</h2>
 
   <div class="video-slider">
 
@@ -218,11 +276,10 @@ $videos = $conn->query("
         data-image="<?php echo $v['image']; ?>"
         onclick="openReel(this)">
 
-        <video muted>
+        <video muted loop autoplay>
           <source src="assets/videos/<?php echo $v['video']; ?>" type="video/mp4">
         </video>
 
-        <!-- PRODUCT INFO -->
         <div class="video-product">
           <img src="assets/images/<?php echo $v['image']; ?>">
           <div>
@@ -238,6 +295,7 @@ $videos = $conn->query("
   </div>
 
 </section>
+
 
 
 <!-- ============================
@@ -275,211 +333,223 @@ $inf = $conn->query("SELECT * FROM influencers");
 
 </section>
 
-<!-- ==========================
-GOALS SECTION
-============================ -->
+<!-- ========================================
+REVIEW SECTION
+========================================  -->
 
+<?php
+$reviews = $conn->query("SELECT * FROM reviews");
+?>
 
-<section class="goals">
+<section class="reviews-section">
 
-  <h2>REACH YOUR POTENTIAL</h2>
-  <p>Everyone has goals, let us help you with yours</p>
+  <h2 class="section-title">Real People. Real Reviews ❤️</h2>
 
-  <div class="goal-row">
+  <div class="reviews-wrapper">
 
-    <!-- LEFT TEXT BLOCK -->
-    <div class="goal-box dark">
-      <h3>WHAT’S<br>YOUR<br>GOAL?</h3>
-    </div>
+    <button class="review-btn left" onclick="scrollReviews(-300)">‹</button>
 
-    <!-- ITEM 1 -->
-    <div class="goal-box orange">
-      <img src="assets/images/products/product1.webp">
-      <p>PREPARE BEFORE TRAINING</p>
-    </div>
+    <div class="reviews-slider" id="reviewSlider">
 
-    <!-- ITEM 2 -->
-    <div class="goal-box green">
-      <img src="assets/images/products/product1.webp">
-      <p>STRENGTH & ENDURANCE</p>
-    </div>
+      <?php while($r = $reviews->fetch_assoc()): ?>
 
-    <!-- ITEM 3 -->
-    <div class="goal-box orange">
-      <img src="assets/images/products/product1.webp">
-      <p>RECOVER AFTER TRAINING</p>
-    </div>
+      <div class="review-card"
+        data-video="<?php echo $r['video']; ?>"
+        data-name="<?php echo $r['name']; ?>"
+        data-role="<?php echo $r['role']; ?>"
+        data-title="<?php echo $r['title']; ?>"
+        onclick="openReviewReel(this)">
 
-    <!-- ITEM 4 -->
-    <div class="goal-box green">
-      <img src="assets/images/products/product1.webp">
-      <p>WEIGHT GAIN</p>
-    </div>
+        <video muted autoplay loop>
+          <source src="assets/videos/<?php echo $r['video']; ?>">
+        </video>
 
-    <!-- ITEM 5 -->
-    <div class="goal-box orange">
-      <img src="assets/images/products/product1.webp">
-      <p>ANYTIME ENDURANCE</p>
-    </div>
-
-  </div>
-
-</section>
-<!-- 
-=========================================
-EDUCATION AND RESOURCES
-========================================= -->
-
-<section class="education">
-
-  <h2>EDUCATION AND RESOURCES</h2>
-
-  <div class="edu-grid">
-
-    <!-- CARD 1 -->
-    <div class="edu-card">
-      <img src="assets/images/e1.jpg">
-      <div class="overlay">
-        <h3>ARTICLES AND ADVICE</h3>
-        <button>EXPLORE AND LEARN</button>
-      </div>
-    </div>
-
-    <!-- CARD 2 -->
-    <div class="edu-card">
-      <img src="assets/images/e2.jpg">
-      <div class="overlay">
-        <h3>PROTIEN AND PACKED RECIPES</h3>
-        <button>EXPLORE AND LEARN</button>
-      </div>
-    </div>
-
-    <!-- CARD 3 -->
-    <div class="edu-card">
-      <img src="assets/images/e3.jpg">
-      <div class="overlay">
-        <h3>ATHLETES</h3>
-        <button>EXPLORE AND LEARN</button>
-      </div>
-    </div>
-
-  </div>
-
-</section>
-
-<!-- ===============================
- Our Range of Products 
- ===================================-->
-
- <section class="range">
-
-  <h2>OUR RANGE OF PRODUCTS</h2>
-
-  <div class="range-slider">
-
-    <div class="range-track">
-
-      <!-- SLIDE 1 -->
-      <div class="range-item">
-        <div class="range-img">
-          <img src="assets/images/our-range-mass.webp">
+        <!-- TOP TEXT -->
+        <div class="review-overlay top">
+          <?php echo $r['title']; ?>
         </div>
-        <div class="range-content">
-          <h3>ENERGY</h3>
-          <p>
-            Refuel and refocus with products that support energy and endurance.
-            Boost your endurance with anytime energy from Optimum Nutrition.
-          </p>
-          <button>LEARN MORE</button>
+
+        <!-- BOTTOM -->
+        <div class="review-overlay bottom">
+          <h4>
+            <?php echo $r['name']; ?>
+            <?php if($r['verified']): ?>
+              <span class="verified">✔</span>
+            <?php endif; ?>
+          </h4>
+          <p><?php echo $r['role']; ?></p>
         </div>
+
       </div>
 
-      <!-- SLIDE 2 -->
-      <div class="range-item">
-        <div class="range-img">
-          <img src="assets/images/our-range-mass.webp">
-        </div>
-        <div class="range-content">
-          <h3>STRENGTH</h3>
-          <p>
-            Build strength and performance with high-quality supplements.
-          </p>
-          <button>LEARN MORE</button>
-        </div>
-      </div>
+      <?php endwhile; ?>
 
     </div>
 
-    <!-- ARROWS -->
-    <button class="range-arrow prev">❮</button>
-    <button class="range-arrow next">❯</button>
-
-    <!-- DOTS -->
-    <div class="range-dots"></div>
+    <button class="review-btn right" onclick="scrollReviews(300)">›</button>
 
   </div>
 
 </section>
 
-<!-- ======================
-POWERING MORE THAN
-=========================== -->
+<!-- MODAL -->
+<div class="review-modal" id="reviewModal">
 
-<section class="on-final">
+  <div class="review-box">
 
+    <span class="close" onclick="closeReview()">×</span>
 
-  <!-- IMAGE NUMBER -->
-  <div class="number-img">
-    <img src="assets/images/billion-recoveries.webp" alt="2 Billion">
-  </div>
+    <video id="reviewVideo" controls autoplay></video>
 
+    <div class="review-info">
+      <h3 id="reviewName"></h3>
+      <p id="reviewRole"></p>
 
-  <!-- DESCRIPTION -->
-  <p class="desc">
-    Our appetite for success continues, fuelled by strong growth, strategic investment and exciting new acquisitions that complement our existing portfolio. We pride ourselves on developing the innovative, science-led products and cutting-edge ingredients that consumers want.
-  </p>
-
-</section>
-
-<section class="quality">
-
-  <h2>OPTIMUM QUALITY</h2>
-
-  <p class="quality-desc">
-    We are a global nutrition leader, a team of scientists, tastemakers, and relationship-builders with sights set on better. As curious as we are committed, we make it a point to listen to our partners and consumers, so that we can deliver the products people want and need. Through insight-and science-led innovation, we create healthier snack options, products that boost immunity and sports performance, the secret ingredients that make foods and drinks taste great, and customised nutrition solutions for a future of food that's personal and consumers that are ever-evolving.
-  </p>
-
-  <div class="quality-grid">
-
-    <!-- ITEM 1 -->
-    <div class="quality-item">
-      <div class="icon">
-        <i class="fas fa-hexagon"></i>
+      <div class="like-btn" onclick="likeVideo(this)">
+        ❤️ <span>0</span>
       </div>
-      <h3>HIGH QUALITY RAW<br> MATERIALS</h3>
-    </div>
-
-    <!-- ITEM 2 -->
-    <div class="quality-item">
-      <div class="icon">
-        <i class="fas fa-trophy"></i>
-      </div>
-      <h3>TOP RATED AND<br> REVIEWED</h3>
-    </div>
-
-    <!-- ITEM 3 -->
-    <div class="quality-item">
-      <div class="icon">
-        <i class="fas fa-check"></i>
-      </div>
-      <h3>WE TEST & RE-TEST FOR<br> QUALITY</h3>
     </div>
 
   </div>
 
-  <button class="quality-btn">LEARN ABOUT OUR QUALITY</button>
+</div>
+
+<!-- ==================================
+WHY CHOOSE US? SECTION 
+================================== -->
+
+<section class="why-pro-section">
+
+  <div class="why-container">
+
+    <!-- LEFT -->
+    <div class="why-left">
+      <h1>
+        WHY <br>
+        CHOOSE <br>
+        <span>US</span>
+      </h1>
+
+      <div class="why-arrow">→</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="why-right">
+
+      <div class="why-box light big">
+        <h2><span class="counter" data-target="25">0</span> YEARS</h2>
+        <p>LEADING SUPPLEMENT BRAND<br>IN THE WORLD</p>
+      </div>
+
+      <div class="why-box red ">
+        <h2><span class="counter" data-target="20">0</span>MILLION+</h2>
+        <p>HAPPY CUSTOMERS</p>
+      </div>
+
+      <div class="why-box light">
+        <h2><span class="counter" data-target="200">0</span>+</h2>
+        <p>PRODUCTS</p>
+      </div>
+
+      <div class="why-box light">
+        <h2>100%</h2>
+        <p>GENUINE PRODUCTS</p>
+      </div>
+
+      <div class="why-box light">
+        <h2>FREE</h2>
+        <p>SHIPPING</p>
+      </div>
+
+    </div>
+
+  </div>
 
 </section>
+
+<!-- ====================================
+FRANCHISE SECTION
+==================================== -->
+
+<section class="franchise-section">
+
+  <div class="franchise-container">
+
+    <!-- LEFT CONTENT -->
+    <div class="franchise-content">
+
+      <h2>
+        Start Your Own <span>Proburst Franchise</span>
+      </h2>
+
+      <p class="franchise-sub">
+        Build a profitable fitness business with India’s growing sports nutrition brand.
+      </p>
+
+      <p>
+       Partner with us and launch your own premium Proburst sports nutrition franchise store. We build complete, fully-stocked Proburst outlets with high-quality supplements including whey protein, mass gainers, amino acids, and advanced performance nutrition products. Join the growing fitness industry and build a profitable business with a trusted brand.
+      </p>
+
+      <p>
+        The fitness and sports nutrition market in India is growing rapidly, with millions of people focusing on health, strength, and active lifestyles. Proburst by Intra Life Private Limited brings you a unique opportunity to become part of this booming industry by launching your own Proburst Franchise Store.
+      </p>
+
+      <p>
+        We help entrepreneurs, fitness enthusiasts, gym owners, and business investors establish premium sports nutrition retail outlets that offer high-quality supplements trusted by athletes and fitness lovers across the country.
+      </p>
+      <p>
+        With complete franchise support, premium product range, and strong brand backing, Proburst provides the perfect platform to build a profitable and scalable fitness business.
+      </p>
+
+     <button class="franchise-btn" onclick="openFranchiseForm()">
+  Apply for Franchise →
+</button>
+
+<!-- BADGE -->
+<!-- <div class="investment-badge">
+  Investment starts from ₹2 Lakhs*
+</div> -->
+
+    </div>
+
+    <!-- RIGHT VISUAL -->
+    <div class="franchise-image">
+
+      <img src="assets/images/franchiese.webp" alt="franchise">
+
+      <!-- GLOW EFFECT -->
+      <div class="franchise-glow"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- =========================
+   FRANCHISE POPUP
+========================= -->
+<div class="franchise-modal" id="franchiseModal">
+
+  <div class="franchise-form-box">
+
+    <span class="close" onclick="closeFranchiseForm()">×</span>
+
+    <h3>Start Your Franchise</h3>
+
+    <form id="franchiseForm">
+
+      <input type="text" name="name" placeholder="Full Name" required>
+      <input type="text" name="phone" placeholder="Phone Number" required>
+      <input type="text" name="city" placeholder="City" required>
+
+      <button type="submit">Submit & Continue</button>
+
+    </form>
+
+  </div>
+
+</div>
 
 
 <?php include 'includes/footer.php'; ?>

@@ -14,7 +14,7 @@ $catQuery = $conn->query("SELECT * FROM categories");
     <div class="hamburger" id="hamburger">☰</div>
 
     <a href="/proburst/index.php">
-      <img src="/proburst/assets/images/logo.png" alt="logo">
+      <img src="/proburst/assets/images/Light_Logo.png" alt="logo">
     </a>
   </div>
 
@@ -46,6 +46,7 @@ $catQuery = $conn->query("SELECT * FROM categories");
 
 <!-- MENU -->
 <div class="menu-bar">
+  <div class="menu-close" id="menuClose">✕</div>
   <ul>
 
     <li><a href="/proburst/index.php">Home</a></li>

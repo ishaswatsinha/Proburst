@@ -1,11 +1,17 @@
 <?php include '../includes/header.php'; ?>
 <?php include '../includes/navbar.php'; ?>
 
-<h2 style="padding:20px;">Your Cart</h2>
+<section class="cart-page">
 
-<div id="cart-container" style="padding:20px;"></div>
+  <h2 class="cart-title">Your Cart</h2>
 
-<button onclick="checkout()">Proceed to Checkout</button>
+  <div id="cart-container"></div>
+
+  <button onclick="checkout()" class="cart-checkout-btn">
+    Proceed to Checkout →
+  </button>
+
+</section>
 
 <?php include '../includes/footer.php'; ?>
 
@@ -14,10 +20,26 @@
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let container = document.getElementById("cart-container");
 
+/* =========================
+   CHECKOUT
+========================= */
+function checkout() {
+
+  if (cart.length === 0) {
+    alert("Your cart is empty!");
+    return;
+  }
+
+  window.location.href = "checkout.php";
+}
+
+/* =========================
+   RENDER CART
+========================= */
 function renderCart() {
 
   if (cart.length === 0) {
-    container.innerHTML = "<p>Your cart is empty</p>";
+    container.innerHTML = "<p class='cart-empty'>Your cart is empty</p>";
     return;
   }
 
@@ -29,36 +51,40 @@ function renderCart() {
     total += item.price * item.qty;
 
     html += `
-      <div style="border-bottom:1px solid #ddd; padding:15px; display:flex; gap:20px; align-items:center;">
+      <div class="cart-item">
 
-        <img src="../assets/images/${item.image}" width="80">
+        <img src="../assets/images/${item.image}">
 
-        <div style="flex:1;">
+        <div class="cart-details">
           <h3>${item.name}</h3>
           <p>₹${item.price}</p>
 
-          <div style="margin-top:10px;">
+          <div class="cart-qty">
             <button onclick="changeQty(${item.id}, -1)">−</button>
-            <span style="margin:0 10px;">${item.qty}</span>
+            <span>${item.qty}</span>
             <button onclick="changeQty(${item.id}, 1)">+</button>
           </div>
         </div>
 
-        <div>
+        <div class="cart-actions">
           <p>₹${item.price * item.qty}</p>
-          <button onclick="removeItem(${item.id})">Remove</button>
+          <button class="cart-remove" onclick="removeItem(${item.id})">
+            Remove
+          </button>
         </div>
 
       </div>
     `;
   });
 
-  html += `<h2 style="margin-top:20px;">Total: ₹${total}</h2>`;
+  html += `<div class="cart-total">Total: ₹${total}</div>`;
 
   container.innerHTML = html;
 }
 
-/* CHANGE QUANTITY */
+/* =========================
+   CHANGE QTY
+========================= */
 function changeQty(id, change) {
 
   cart = cart.map(item => {
@@ -78,7 +104,9 @@ function changeQty(id, change) {
   renderCart();
 }
 
-/* REMOVE ITEM */
+/* =========================
+   REMOVE ITEM
+========================= */
 function removeItem(id) {
 
   cart = cart.filter(item => item.id !== id);
