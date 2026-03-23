@@ -1224,22 +1224,108 @@ CART AND TOAST
   background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
 }
 
-/* INFO MODAL  */
+/* =========================
+   CENTER REEL MODAL
+========================= */
 
 .inf-modal {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.75); /* dark overlay */
   display: none;
   justify-content: center;
   align-items: center;
   z-index: 9999;
+  backdrop-filter: blur(8px);
 }
 
-.inf-modal video {
-  width: 600px;
-  max-width: 90%;
-  border-radius: 10px;
+/* Reel container (main card) */
+.inf-modal .reel-box {
+  position: relative;
+  width: 320px;
+  height: 560px;
+  background: #000;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  animation: scaleUp 0.3s ease;
+}
+
+/* Animation */
+@keyframes scaleUp {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Video */
+.reel-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Close button */
+.reel-box .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 26px;
+  color: #fff;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Top gradient */
+.reel-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+  z-index: 1;
+}
+
+/* Bottom gradient */
+.reel-box::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  z-index: 1;
+}
+
+/* Right side icons */
+.reel-actions {
+  position: absolute;
+  right: 10px;
+  bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  z-index: 2;
+}
+
+.reel-actions i {
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.reel-actions i:hover {
+  transform: scale(1.2);
 }
 
 /* =========================
@@ -1747,7 +1833,7 @@ CART AND TOAST
   background: #cc0000;
 }
 
-.close {
+.franchise-close {
   position: absolute;
   top: 10px;
   right: 15px;

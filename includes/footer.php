@@ -98,14 +98,24 @@
 
 <!-- INFLUENCER MODAL  -->
 
+
 <div id="infModal" class="inf-modal">
 
-  <span class="close" onclick="closeInfluencer()">×</span>
+  <div class="reel-box">
 
-  <video id="infVideo" controls autoplay></video>
+    <span class="close" onclick="closeInfluencer()">×</span>
+
+    <video id="infVideo" autoplay controls></video>
+
+    <div class="reel-actions">
+      <i class="fa-solid fa-heart"></i>
+      <i class="fa-solid fa-comment"></i>
+      <i class="fa-solid fa-share"></i>
+    </div>
+
+  </div>
 
 </div>
-
 <div id="toast"></div>
 
 <script src="/proburst/assets/js/app.js"></script>

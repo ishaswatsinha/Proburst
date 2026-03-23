@@ -334,16 +334,16 @@ $inf = $conn->query("SELECT * FROM influencers");
     <?php while($i = $inf->fetch_assoc()): ?>
 
       <div class="influencer-card"
-        onclick="openInfluencer('<?php echo $i['video']; ?>')">
+        onclick="openInfluencer('assets/videos/<?php echo $i['video']; ?>')"> 
 
         <img src="assets/images/<?php echo $i['thumbnail']; ?>" alt="">
-
+        
         <div class="play-btn">▶</div>
 
         <div class="inf-info">
           <h4><?php echo $i['name']; ?></h4>
         </div>
-
+        
       </div>
 
     <?php endwhile; ?>
@@ -552,7 +552,7 @@ FRANCHISE SECTION
 
   <div class="franchise-form-box">
 
-    <span class="close" onclick="closeFranchiseForm()">×</span>
+    <span class="franchise-close" onclick="closeFranchiseForm()">×</span>
 
     <h3>Start Your Franchise</h3>
 

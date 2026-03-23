@@ -199,7 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* =========================
-     VIDEO REELS FINAL (WORKING)
+     VIDEO REELS 
   ========================= */
 
   let allVideos = [];
@@ -327,25 +327,69 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* =========================
+   INFLUENCER VIDEO MODAL
+========================= */
+
+// Open modal and play video
+window.openInfluencer = function(videoPath) {
+  const modal = document.getElementById("infModal");
+  const video = document.getElementById("infVideo");
+
+  // Set video source
+  video.src = videoPath;
+
+  // Show modal
+  modal.style.display = "flex";
+
+  // Play video
+  video.play();
+};
+
+
+// Close modal
+window.closeInfluencer = function() {
+  const modal = document.getElementById("infModal");
+  const video = document.getElementById("infVideo");
+
+  // Pause and reset video
+  video.pause();
+  video.currentTime = 0;
+  video.src = "";
+
+  // Hide modal
+  modal.style.display = "none";
+};
+
+
+// Optional: close modal when clicking outside video
+window.onclick = function(e) {
+  const modal = document.getElementById("infModal");
+
+  if (e.target === modal) {
+    closeInfluencer();
+  }
+};
+
+  /* =========================
      CATEGORY SCROLL
   ========================= */
-  window.scrollCategory = function (amount) {
-    const slider = document.getElementById("catSlider");
-    if (!slider) return;
+  // window.scrollCategory = function (amount) {
+  //   const slider = document.getElementById("catSlider");
+  //   if (!slider) return;
 
-    slider.scrollBy({ left: amount, behavior: "smooth" });
-  };
+  //   slider.scrollBy({ left: amount, behavior: "smooth" });
+  // };
 
 
   /* =========================
      REVIEW SCROLL
   ========================= */
-  window.scrollReviews = function (amount) {
-    const slider = document.getElementById("reviewSlider");
-    if (!slider) return;
+  // window.scrollReviews = function (amount) {
+  //   const slider = document.getElementById("reviewSlider");
+  //   if (!slider) return;
 
-    slider.scrollBy({ left: amount, behavior: "smooth" });
-  };
+  //   slider.scrollBy({ left: amount, behavior: "smooth" });
+  // };
 
 
   /* =========================
