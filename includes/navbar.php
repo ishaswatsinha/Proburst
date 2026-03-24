@@ -50,7 +50,7 @@ $catQuery = $conn->query("SELECT * FROM categories");
   <ul>
 
     <li><a href="/proburst/index.php">Home</a></li>
-    <li><a href="#">About</a></li>
+    <li><a href="/proburst/pages/about.php">About</a></li>
 
     <li class="dropdown">
       <a href="/proburst/pages/shop.php">Products</a>

@@ -447,7 +447,7 @@ function closeFranchiseForm() {
 
 /* SUBMIT */
 
-const BASE_URL = window.location.origin + "/proburst"; // DYNAMIC BASE URL
+const BASE_URL = window.location.origin + ""; // DYNAMIC BASE URL
 const form = document.getElementById("franchiseForm");
 
 if (form) {
