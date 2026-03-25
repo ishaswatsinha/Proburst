@@ -1,6 +1,20 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../includes/auth.php';
+
 include __DIR__ . '/../config/database.php';
+
 $catQuery = $conn->query("SELECT * FROM categories");
+
+// Safe avatar initial — mb_substr handles all names safely
+$navAvatarInitial = '';
+$navFirstName     = '';
+if (isLoggedIn() && !empty($_SESSION['user_name'])) {
+    $navAvatarInitial = strtoupper(mb_substr($_SESSION['user_name'], 0, 1));
+    $navFirstName     = htmlspecialchars(explode(' ', $_SESSION['user_name'])[0]);
+}
 ?>
 
 <div class="top-bar">
@@ -12,7 +26,6 @@ $catQuery = $conn->query("SELECT * FROM categories");
   <!-- LOGO -->
   <div class="logo">
     <div class="hamburger" id="hamburger">☰</div>
-
     <a href="/proburst/index.php">
       <img src="/proburst/assets/images/Light_Logo.png" alt="logo">
     </a>
@@ -42,6 +55,27 @@ $catQuery = $conn->query("SELECT * FROM categories");
 
   </div>
 
+  <?php if (isLoggedIn()): ?>
+
+    <!-- Logged-in state -->
+    <div class="nav-user-menu">
+      <a href="/proburst/pages/account.php" class="nav-user-btn">
+        <span class="nav-avatar"><?= $navAvatarInitial ?></span>
+        <span><?= $navFirstName ?></span>
+      </a>
+      <a href="/proburst/pages/logout.php" class="nav-logout-btn">Logout</a>
+    </div>
+
+  <?php else: ?>
+
+    <!-- Logged-out state -->
+    <div class="nav-auth-btns">
+      <a href="/proburst/pages/login.php"    class="nav-login-btn">Login</a>
+      <a href="/proburst/pages/register.php" class="nav-register-btn">Sign Up</a>
+    </div>
+
+  <?php endif; ?>
+
 </nav>
 
 <!-- MENU -->
@@ -60,22 +94,17 @@ $catQuery = $conn->query("SELECT * FROM categories");
         <?php while($cat = $catQuery->fetch_assoc()): ?>
 
           <div class="dropdown-item has-submenu">
-
             <span><?php echo $cat['name']; ?> ›</span>
 
             <div class="submenu">
-
               <?php
-              $subQuery = $conn->query("SELECT * FROM subcategories WHERE category_id=".$cat['id']);
+              $subQuery = $conn->query("SELECT * FROM subcategories WHERE category_id=" . (int)$cat['id']);
               while($sub = $subQuery->fetch_assoc()):
               ?>
-
                 <a href="/proburst/pages/shop.php?subcategory=<?php echo $sub['id']; ?>">
                   <div><?php echo $sub['name']; ?></div>
                 </a>
-
               <?php endwhile; ?>
-
             </div>
 
           </div>

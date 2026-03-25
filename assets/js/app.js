@@ -391,6 +391,86 @@ window.onclick = function(e) {
   //   slider.scrollBy({ left: amount, behavior: "smooth" });
   // };
 
+  /* =========================
+   REVIEW REEL MODAL
+========================= */
+
+// Open modal
+window.openReviewReel = function(card) {
+  const modal = document.getElementById("reviewModal");
+  const video = document.getElementById("reviewVideo");
+
+  const name = document.getElementById("reviewName");
+  const role = document.getElementById("reviewRole");
+
+  // Get data from clicked card
+  const videoSrc = card.dataset.video;
+  const userName = card.dataset.name;
+  const userRole = card.dataset.role;
+
+  // Set data in modal
+  video.src = "assets/videos/" + videoSrc;
+  name.innerText = userName;
+  role.innerText = userRole;
+
+  // Show modal
+  modal.style.display = "flex";
+
+  // Play video
+  video.play();
+};
+
+
+// Close modal
+window.closeReview = function() {
+  const modal = document.getElementById("reviewModal");
+  const video = document.getElementById("reviewVideo");
+
+  // Stop video
+  video.pause();
+  video.currentTime = 0;
+  video.src = "";
+
+  // Hide modal
+  modal.style.display = "none";
+};
+
+
+// Close on outside click
+window.onclick = function(e) {
+  const modal = document.getElementById("reviewModal");
+
+  if (e.target === modal) {
+    closeReview();
+  }
+};
+
+
+/* =========================
+   SCROLL REVIEWS
+========================= */
+window.scrollReviews = function(value) {
+  const slider = document.getElementById("reviewSlider");
+  slider.scrollLeft += value;
+};
+
+
+/* =========================
+   LIKE BUTTON
+========================= */
+window.likeVideo = function(btn) {
+  const countSpan = btn.querySelector("span");
+  let count = parseInt(countSpan.innerText);
+
+  count++;
+  countSpan.innerText = count;
+
+  // simple animation
+  btn.style.transform = "scale(1.2)";
+  setTimeout(() => {
+    btn.style.transform = "scale(1)";
+  }, 200);
+};
 
   /* =========================
      WHY COUNTER
