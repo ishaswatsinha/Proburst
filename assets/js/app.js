@@ -517,6 +517,63 @@ window.likeVideo = function(btn) {
    FRANCHISE POPUP
 ========================= */
 
+// function openFranchiseForm() {
+//   document.getElementById("franchiseModal").style.display = "flex";
+// }
+
+// function closeFranchiseForm() {
+//   document.getElementById("franchiseModal").style.display = "none";
+// }
+
+// /* SUBMIT */
+
+// const BASE_URL = window.location.origin + "/proburst"; // DYNAMIC BASE URL
+// const form = document.getElementById("franchiseForm");
+
+// if (form) {
+
+//   form.addEventListener("submit", function (e) {
+//     e.preventDefault();
+
+//     let formData = new FormData(this);
+
+//     fetch(BASE_URL + "/pages/save-lead.php", {   // ✅ FIXED PATH
+//       method: "POST",
+//       body: formData
+//     })
+//       .then(res => res.text())
+//       .then(res => {
+
+//         console.log(res); // 🔥 DEBUG
+
+//         if (res.includes("success")) {
+
+//           let phone = formData.get("phone");
+
+//           let msg = encodeURIComponent(
+//             "Hi, I am interested in Proburst Franchise. My number: " + phone
+//           );
+
+//           window.location.href = `https://wa.me/91YOURNUMBER?text=${msg}`;
+
+//         } else {
+//           alert("Error: " + res);
+//         }
+
+//       })
+//       .catch(err => {
+//         console.error(err);
+//         alert("Something went wrong!");
+//       });
+
+//   });
+
+// }
+
+/* =========================
+   FRANCHISE POPUP
+========================= */
+
 function openFranchiseForm() {
   document.getElementById("franchiseModal").style.display = "flex";
 }
@@ -526,8 +583,7 @@ function closeFranchiseForm() {
 }
 
 /* SUBMIT */
-
-const BASE_URL = window.location.origin + ""; // DYNAMIC BASE URL
+const BASE_URL = window.location.origin;
 const form = document.getElementById("franchiseForm");
 
 if (form) {
@@ -535,40 +591,61 @@ if (form) {
   form.addEventListener("submit", function (e) {
     e.preventDefault();
 
+    const btn = this.querySelector("button[type=submit]");
+    btn.disabled    = true;
+    btn.textContent = "Submitting...";
+
     let formData = new FormData(this);
 
-    fetch(BASE_URL + "/pages/save-lead.php", {   // ✅ FIXED PATH
+    fetch(BASE_URL + "/proburst/pages/save-lead.php", {
       method: "POST",
       body: formData
     })
-      .then(res => res.text())
-      .then(res => {
+    .then(res => res.text())
+    .then(res => {
 
-        console.log(res); // 🔥 DEBUG
+      if (res.includes("success")) {
 
-        if (res.includes("success")) {
+        // ✅ Show thank-you message inside the modal
+        const box = document.querySelector(".franchise-form-box");
+        box.innerHTML = `
+          <div style="text-align:center;padding:30px 20px">
+            <div style="font-size:2.5rem;margin-bottom:12px">🎉</div>
+            <h3 style="color:#fff;margin-bottom:8px">Thank You!</h3>
+            <p style="color:#aaa;font-size:.95rem;margin-bottom:20px">
+              Your franchise inquiry has been received.<br>
+              Our team will contact you within 24 hours.
+            </p>
+            <button onclick="closeFranchiseForm()"
+              style="background:#e63946;color:#fff;border:none;border-radius:8px;
+                     padding:10px 24px;font-size:.95rem;cursor:pointer;font-weight:600">
+              Close
+            </button>
+          </div>
+        `;
 
-          let phone = formData.get("phone");
+        // Optional: also open WhatsApp after 1.5 seconds
+        let phone = formData.get("phone");
+        let msg   = encodeURIComponent("Hi, I am interested in Proburst Franchise. My number: " + phone);
+        setTimeout(() => window.open("https://wa.me/91YOURNUMBER?text=" + msg, "_blank"), 1500);
 
-          let msg = encodeURIComponent(
-            "Hi, I am interested in Proburst Franchise. My number: " + phone
-          );
+      } else {
+        alert("Something went wrong. Please try again.");
+        btn.disabled    = false;
+        btn.textContent = "Submit & Continue";
+      }
 
-          window.location.href = `https://wa.me/91YOURNUMBER?text=${msg}`;
-
-        } else {
-          alert("Error: " + res);
-        }
-
-      })
-      .catch(err => {
-        console.error(err);
-        alert("Something went wrong!");
-      });
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Network error. Please try again.");
+      btn.disabled    = false;
+      btn.textContent = "Submit & Continue";
+    });
 
   });
-
 }
+
 
 // =====================================
 // HAMBERGER MENU
@@ -653,3 +730,63 @@ if (next && prev && slider) {
   });
 
 }
+
+
+// ============================
+// LIVE SEARCH
+// ============================
+
+(function() {
+  const input    = document.getElementById('navSearch');
+  const dropdown = document.getElementById('searchDropdown');
+  let   timer    = null;
+
+  input.addEventListener('input', function() {
+    clearTimeout(timer);
+    const q = this.value.trim();
+
+    if (q.length < 2) {
+      dropdown.classList.remove('open');
+      dropdown.innerHTML = '';
+      return;
+    }
+
+    timer = setTimeout(() => {
+      fetch('/proburst/ajax/search.php?q=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(products => {
+          if (!products.length) {
+            dropdown.innerHTML = '<div class="search-no-result">No products found for "' + q + '"</div>';
+          } else {
+            dropdown.innerHTML = products.map(p => `
+              <a href="${p.url}" class="search-result-item">
+                <img src="/proburst/assets/images/${p.image}" alt="${p.name}" onerror="this.style.display='none'">
+                <div>
+                  <span class="sr-name">${p.name}</span>
+                  <span class="sr-price">₹${p.price.toLocaleString('en-IN')}</span>
+                </div>
+              </a>
+            `).join('');
+          }
+          dropdown.classList.add('open');
+        })
+        .catch(() => {
+          dropdown.classList.remove('open');
+        });
+    }, 300); // 300ms debounce
+  });
+
+  // Close on click outside
+  document.addEventListener('click', function(e) {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+
+  // Navigate on Enter
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && this.value.trim()) {
+      window.location.href = '/proburst/pages/shop.php?search=' + encodeURIComponent(this.value.trim());
+    }
+  });
+})();

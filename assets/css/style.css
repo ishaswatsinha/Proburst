@@ -3322,7 +3322,74 @@ PRODUCT DETAILS PAGE
 
 
 /* <!-- ===== ALSO ADD THIS CSS TO YOUR EXISTING stylesheet ===== --> */
+  /* Search dropdown */
+  .search-box {
+    position: relative;
+  }
 
+  .search-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    z-index: 9999;
+    max-height: 360px;
+    overflow-y: auto;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .search-dropdown.open {
+    display: block;
+  }
+
+  .search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    text-decoration: none;
+    border-bottom: 1px solid #222;
+    transition: background 0.15s;
+  }
+
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+
+  .search-result-item:hover {
+    background: #252525;
+  }
+
+  .search-result-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: #111;
+  }
+
+  .search-result-item .sr-name {
+    color: #fff;
+    font-size: 0.88rem;
+    display: block;
+  }
+
+  .search-result-item .sr-price {
+    color: #e63946;
+    font-size: 0.82rem;
+  }
+
+  .search-no-result {
+    color: #666;
+    padding: 16px;
+    text-align: center;
+    font-size: 0.88rem;
+  }
+  
 .nav-user-menu {
   display: flex;
   align-items: center;
