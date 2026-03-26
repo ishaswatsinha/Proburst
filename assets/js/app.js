@@ -512,64 +512,6 @@ window.likeVideo = function(btn) {
 
 });
 
-
-/* =========================
-   FRANCHISE POPUP
-========================= */
-
-// function openFranchiseForm() {
-//   document.getElementById("franchiseModal").style.display = "flex";
-// }
-
-// function closeFranchiseForm() {
-//   document.getElementById("franchiseModal").style.display = "none";
-// }
-
-// /* SUBMIT */
-
-// const BASE_URL = window.location.origin + "/proburst"; // DYNAMIC BASE URL
-// const form = document.getElementById("franchiseForm");
-
-// if (form) {
-
-//   form.addEventListener("submit", function (e) {
-//     e.preventDefault();
-
-//     let formData = new FormData(this);
-
-//     fetch(BASE_URL + "/pages/save-lead.php", {   // ✅ FIXED PATH
-//       method: "POST",
-//       body: formData
-//     })
-//       .then(res => res.text())
-//       .then(res => {
-
-//         console.log(res); // 🔥 DEBUG
-
-//         if (res.includes("success")) {
-
-//           let phone = formData.get("phone");
-
-//           let msg = encodeURIComponent(
-//             "Hi, I am interested in Proburst Franchise. My number: " + phone
-//           );
-
-//           window.location.href = `https://wa.me/91YOURNUMBER?text=${msg}`;
-
-//         } else {
-//           alert("Error: " + res);
-//         }
-
-//       })
-//       .catch(err => {
-//         console.error(err);
-//         alert("Something went wrong!");
-//       });
-
-//   });
-
-// }
-
 /* =========================
    FRANCHISE POPUP
 ========================= */
@@ -790,3 +732,94 @@ if (next && prev && slider) {
     }
   });
 })();
+
+
+// ========================================
+//     CHECKOUT PAGE
+// ========================================
+
+let cart  = JSON.parse(localStorage.getItem('cart')) || [];
+let total = 0;
+
+// Render summary
+(function() {
+  const box = document.getElementById('order-items');
+  if (!cart.length) { box.innerHTML = "<p style='color:#888'>Your cart is empty</p>"; return; }
+  let html = '';
+  cart.forEach(item => {
+    const sub = item.price * item.qty;
+    total += sub;
+    html += `<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:.9rem">
+      <span>${item.name} × ${item.qty}</span>
+      <span>₹${sub.toLocaleString('en-IN')}</span>
+    </div>`;
+  });
+  box.innerHTML = html;
+  document.getElementById('order-total').textContent = '₹' + total.toLocaleString('en-IN');
+})();
+
+document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  if (!cart.length) { showMsg('Your cart is empty!', 'error'); return; }
+
+  const btn = document.getElementById('placeBtn');
+  btn.disabled    = true;
+  btn.textContent = 'Placing Order...';
+
+  const fd = new FormData(this);
+  const data = {
+    name:    fd.get('name').trim(),
+    phone:   fd.get('phone').trim(),
+    email:   fd.get('email').trim(),
+    address: fd.get('address').trim(),
+    city:    fd.get('city').trim(),
+    pincode: fd.get('pincode').trim(),
+    cart:    cart,
+    total:   total
+  };
+
+  fetch('place-order.php', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(data)
+  })
+  .then(r => r.text())                     // ✅ text() not json()
+  .then(res => {
+    if (res.includes('success')) {
+      // Extract order id from "success:123"
+      const parts   = res.split(':');
+      const orderId = parts[1] || '';
+      localStorage.removeItem('cart');
+      if (typeof updateCartCount === 'function') updateCartCount();
+      showMsg('✅ Order placed successfully!' + (orderId ? ' Order #' + orderId : ''), 'success');
+      setTimeout(() => window.location.href = '/proburst/index.php', 2500);
+    } else {
+      const errMap = {
+        'error:missing_fields': 'Please fill in all required fields.',
+        'error:empty_cart':     'Your cart is empty.',
+        'error:db_failed':      'Database error. Please try again.',
+        'error:invalid_json':   'Request error. Please refresh and try again.'
+      };
+      showMsg('❌ ' + (errMap[res.trim()] || 'Something went wrong. Please try again.'), 'error');
+      btn.disabled    = false;
+      btn.textContent = 'Place Order';
+    }
+  })
+  .catch(err => {
+    console.error('Checkout fetch error:', err);
+    showMsg('❌ Could not reach server. Check your connection.', 'error');
+    btn.disabled    = false;
+    btn.textContent = 'Place Order';
+  });
+});
+
+function showMsg(msg, type) {
+  const el = document.getElementById('checkout-msg');
+  el.style.display    = 'block';
+  el.style.background = type === 'success' ? '#0a2a0a' : '#2a0a0a';
+  el.style.border     = '1px solid ' + (type === 'success' ? '#2d6a2d' : '#e63946');
+  el.style.color      = type === 'success' ? '#6fcf97' : '#ff6b6b';
+  el.textContent      = msg;
+  el.scrollIntoView({ behavior: 'smooth' });
+}

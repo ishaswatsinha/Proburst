@@ -1,28 +1,12 @@
 <?php
-// =============================================
-// config/pdo.php
-// PDO connection (used by User model)
-// Your existing config/database.php (mysqli) stays untouched
-// =============================================
+// config/pdo.php — DEPRECATED
+// This project now uses mysqli exclusively via config/database.php
+// This file is kept only so old includes don't throw "file not found" errors.
+// It does nothing. You can safely delete it.
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'proburst_db');   // ← change to your DB name
-define('DB_USER', 'root');       // ← change to your MySQL user
-define('DB_PASS', '');           // ← change to your MySQL password
+// If you see this message in a PHP error log, find and update the file
+// that is still requiring pdo.php and change it to require database.php instead.
 
-try {
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ]
-    );
-} catch (PDOException $e) {
-    // In production, log this — never show raw errors
-    error_log($e->getMessage());
-    die(json_encode(['error' => 'Database connection failed.']));
+if (!isset($conn)) {
+    require_once __DIR__ . '/database.php';
 }

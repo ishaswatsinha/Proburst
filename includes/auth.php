@@ -1,7 +1,6 @@
 <?php
 // =============================================
 // includes/auth.php
-// Drop this file in your existing includes/ folder
 // =============================================
 
 if (session_status() === PHP_SESSION_NONE) {

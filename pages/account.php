@@ -1,26 +1,21 @@
 <?php
-// pages/account.php — FINAL VERSION
-// Uses $conn (mysqli) directly — avoids all PDO/scope issues completely
 
 if (session_status() === PHP_SESSION_NONE) session_start();
+require_once '../config/database.php'; // $conn (mysqli)
+require_once '../models/User.php';
 require_once '../includes/auth.php';
-require_once '../config/database.php'; // gives $conn (mysqli)
 
 requireLogin();
 
-$uid    = (int)$_SESSION['user_id'];
-$errors = [];
+$uid     = (int)$_SESSION['user_id'];
+$userModel = new User($conn);
+$user    = $userModel->findById($uid);
+$errors  = [];
 $success = '';
 
-// Fetch user using mysqli — no PDO needed
-$user = $conn->query("SELECT * FROM users WHERE id = $uid LIMIT 1")->fetch_assoc();
+if (!$user) { logoutUser(); exit; }
 
-if (!$user) {
-    logoutUser();
-    exit;
-}
-
-// ---- Handle POST ----
+// ---- POST handlers ----
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     if ($_POST['action'] === 'update_profile') {
@@ -28,14 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $phone = trim($_POST['phone'] ?? '');
 
         if (empty($name))                         $errors[] = 'Name cannot be empty.';
-        if (!preg_match('/^[0-9]{10}$/', $phone)) $errors[] = 'Enter a valid 10-digit phone.';
+        if (!preg_match('/^[0-9]{10}$/', $phone)) $errors[] = 'Enter a valid 10-digit phone number.';
 
         if (empty($errors)) {
-            $stmt = $conn->prepare("UPDATE users SET name=?, phone=? WHERE id=?");
-            $stmt->bind_param('ssi', $name, $phone, $uid);
-            $stmt->execute();
-            $stmt->close();
-
+            $userModel->updateProfile($uid, $name, $phone);
             $_SESSION['user_name'] = $name;
             $user['name']  = $name;
             $user['phone'] = $phone;
@@ -57,25 +48,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         if (empty($errors)) {
-            $hashed = password_hash($new, PASSWORD_BCRYPT);
-            $stmt   = $conn->prepare("UPDATE users SET password=? WHERE id=?");
-            $stmt->bind_param('si', $hashed, $uid);
-            $stmt->execute();
-            $stmt->close();
-            $user['password'] = $hashed;
+            $userModel->updatePassword($uid, $new);
+            $user['password'] = password_hash($new, PASSWORD_BCRYPT);
             $success = 'Password changed successfully!';
         }
     }
 }
 
-// Fetch orders
+// Orders for this user
 $orders = [];
 $oRes = $conn->query("SELECT * FROM orders WHERE user_id = $uid ORDER BY created_at DESC");
-if ($oRes) while ($row = $oRes->fetch_assoc()) $orders[] = $row;
+if ($oRes) while ($r = $oRes->fetch_assoc()) $orders[] = $r;
 
-$avatarInitial = strtoupper(mb_substr($user['name'] ?? 'U', 0, 1));
-$memberSince   = !empty($user['created_at']) ? date('M Y', strtotime($user['created_at'])) : '';
-$flash         = getFlash();
+$initial     = strtoupper(mb_substr($user['name'], 0, 1));
+$memberSince = !empty($user['created_at']) ? date('M Y', strtotime($user['created_at'])) : '';
+$flash       = getFlash();
+
+// Which tab to show on load
+$activeTab = 'profile';
+if (!empty($errors) && ($_POST['action'] ?? '') === 'change_password') $activeTab = 'password';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -86,123 +77,160 @@ $flash         = getFlash();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/css/style.css">
     <style>
-        .account-wrapper{max-width:820px;margin:40px auto;padding:0 20px 80px}
-        .account-header{display:flex;align-items:center;gap:20px;margin-bottom:36px}
-        .avatar{width:72px;height:72px;border-radius:50%;background:#e63946;display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;font-weight:700;flex-shrink:0}
-        .account-header h2{color:#fff;margin:0;font-size:1.5rem}
-        .account-header p{color:#888;margin:4px 0 0;font-size:.9rem}
-        .tabs{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid #222}
-        .tab-btn{background:none;border:none;color:#888;font-size:.9rem;padding:10px 18px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
-        .tab-btn.active{color:#e63946;border-bottom-color:#e63946;font-weight:600}
-        .tab-panel{display:none}
-        .tab-panel.active{display:block}
-        .card{background:#111;border:1px solid #222;border-radius:16px;padding:28px 32px;margin-bottom:24px}
-        .card h3{color:#fff;font-size:1.05rem;margin-top:0;margin-bottom:20px;border-bottom:1px solid #222;padding-bottom:12px}
-        .form-row{display:flex;gap:16px}
-        .form-row .form-group{flex:1}
-        .form-group{margin-bottom:16px}
-        .form-group label{display:block;color:#ccc;font-size:.83rem;margin-bottom:6px}
-        .form-group input{width:100%;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:11px 14px;color:#fff;font-size:.95rem;box-sizing:border-box;transition:border .2s}
-        .form-group input:focus{outline:none;border-color:#e63946}
-        .form-group input[readonly]{opacity:.45;cursor:not-allowed}
-        .btn-save{background:#e63946;color:#fff;border:none;border-radius:8px;padding:11px 24px;font-size:.95rem;font-weight:700;cursor:pointer}
-        .btn-save:hover{background:#c1121f}
-        .alert{border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:.88rem}
-        .alert-error{background:#2a0a0a;border:1px solid #e63946;color:#ff6b6b}
-        .alert-success{background:#0a2a0a;border:1px solid #2d6a2d;color:#6fcf97}
-        .logout-link{color:#888;font-size:.9rem;text-decoration:none}
-        .logout-link:hover{color:#e63946}
-        .orders-table{width:100%;border-collapse:collapse;font-size:.88rem}
-        .orders-table th{color:#888;text-align:left;padding:10px 12px;border-bottom:1px solid #222;font-weight:500}
-        .orders-table td{color:#ddd;padding:12px;border-bottom:1px solid #1a1a1a}
-        .orders-table tr:hover td{background:#161616}
-        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.78rem;font-weight:600}
-        .badge-pending{background:#2a2000;color:#f0a500}
-        .badge-shipped{background:#002a20;color:#00c896}
-        .badge-delivered{background:#0a2a0a;color:#6fcf97}
-        .no-orders{color:#555;text-align:center;padding:40px 0;font-size:.95rem}
-        @media(max-width:600px){.form-row{flex-direction:column;gap:0}.card{padding:20px 16px}}
+        body { background: #0d0d0d; }
+        .acc-wrap  { max-width:820px; margin:40px auto; padding:0 20px 80px; }
+        .acc-head  { display:flex; align-items:center; gap:20px; margin-bottom:36px; }
+        .acc-av    { width:72px; height:72px; border-radius:50%; background:#e63946;
+                     display:flex; align-items:center; justify-content:center;
+                     font-size:2rem; color:#fff; font-weight:700; flex-shrink:0; }
+        .acc-head h2 { color:#fff; margin:0; font-size:1.5rem; }
+        .acc-head p  { color:#888; margin:4px 0 0; font-size:.88rem; }
+
+        .tabs       { display:flex; border-bottom:1px solid #222; margin-bottom:28px; }
+        .tab-btn    { background:none; border:none; color:#777; font-size:.9rem;
+                      padding:11px 20px; cursor:pointer; border-bottom:2px solid transparent;
+                      margin-bottom:-1px; font-family:inherit; transition:color .2s; }
+        .tab-btn.active { color:#e63946; border-bottom-color:#e63946; font-weight:600; }
+
+        .tab-pane   { display:none; }
+        .tab-pane.active { display:block; }
+
+        .card       { background:#111; border:1px solid #1e1e1e; border-radius:14px;
+                      padding:28px 30px; margin-bottom:22px; }
+        .card h3    { color:#fff; font-size:1rem; margin:0 0 20px;
+                      padding-bottom:12px; border-bottom:1px solid #1e1e1e; }
+
+        .frow       { display:flex; gap:16px; }
+        .frow .fg   { flex:1; }
+        .fg         { margin-bottom:16px; }
+        .fg label   { display:block; color:#aaa; font-size:.8rem; margin-bottom:6px; }
+        .fg input   { width:100%; background:#181818; border:1px solid #2a2a2a;
+                      border-radius:8px; padding:11px 14px; color:#fff; font-size:.93rem;
+                      box-sizing:border-box; transition:border .2s; }
+        .fg input:focus   { outline:none; border-color:#e63946; }
+        .fg input[readonly]{ opacity:.4; cursor:not-allowed; }
+
+        .btn-save   { background:#e63946; color:#fff; border:none; border-radius:8px;
+                      padding:11px 26px; font-size:.93rem; font-weight:700; cursor:pointer; }
+        .btn-save:hover { background:#c1121f; }
+
+        .alert      { border-radius:8px; padding:12px 16px; margin-bottom:20px; font-size:.88rem; }
+        .alert-err  { background:#200808; border:1px solid #e63946; color:#ff8080; }
+        .alert-ok   { background:#082008; border:1px solid #2d6a2d; color:#7ecf7e; }
+
+        /* orders */
+        .otable     { width:100%; border-collapse:collapse; font-size:.87rem; }
+        .otable th  { color:#666; text-align:left; padding:9px 12px;
+                      border-bottom:1px solid #1e1e1e; font-weight:500; }
+        .otable td  { color:#ccc; padding:12px; border-bottom:1px solid #161616; }
+        .otable tr:hover td { background:#141414; }
+        .badge      { display:inline-block; padding:3px 11px; border-radius:20px;
+                      font-size:.75rem; font-weight:600; }
+        .b-pending  { background:#1e1500; color:#e0a000; }
+        .b-shipped  { background:#001a14; color:#00c896; }
+        .b-delivered{ background:#071407; color:#6fcf97; }
+        .no-orders  { color:#444; text-align:center; padding:44px 0; font-size:.93rem; }
+
+        .logout-lnk { color:#555; font-size:.88rem; text-decoration:none; }
+        .logout-lnk:hover { color:#e63946; }
+
+        @media(max-width:580px){
+            .frow { flex-direction:column; gap:0; }
+            .card { padding:20px 16px; }
+        }
     </style>
 </head>
 <body>
 <?php include '../includes/navbar.php'; ?>
 
-<div class="account-wrapper">
+<div class="acc-wrap">
 
-    <div class="account-header">
-        <div class="avatar"><?= $avatarInitial ?></div>
+    <!-- Header -->
+    <div class="acc-head">
+        <div class="acc-av"><?= $initial ?></div>
         <div>
             <h2><?= htmlspecialchars($user['name']) ?></h2>
-            <p><?= htmlspecialchars($user['email']) ?><?= $memberSince ? ' · Member since '.$memberSince : '' ?></p>
+            <p><?= htmlspecialchars($user['email']) ?>
+               <?= $memberSince ? ' · Member since ' . $memberSince : '' ?></p>
         </div>
     </div>
 
+    <!-- Alerts -->
     <?php if ($flash && $flash['type'] === 'success'): ?>
-        <div class="alert alert-success">✅ <?= htmlspecialchars($flash['message']) ?></div>
+        <div class="alert alert-ok">✅ <?= htmlspecialchars($flash['message']) ?></div>
     <?php endif; ?>
     <?php if ($success): ?>
-        <div class="alert alert-success">✅ <?= htmlspecialchars($success) ?></div>
+        <div class="alert alert-ok">✅ <?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
     <?php if (!empty($errors)): ?>
-        <div class="alert alert-error">
-            <?php foreach ($errors as $e): ?><p style="margin:3px 0">⚠ <?= htmlspecialchars($e) ?></p><?php endforeach; ?>
+        <div class="alert alert-err">
+            <?php foreach ($errors as $e): ?>
+                <div>⚠ <?= htmlspecialchars($e) ?></div>
+            <?php endforeach; ?>
         </div>
     <?php endif; ?>
 
+    <!-- Tabs -->
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('profile',this)">👤 Profile</button>
-        <button class="tab-btn" onclick="switchTab('orders',this)">📦 My Orders</button>
-        <button class="tab-btn" onclick="switchTab('password',this)">🔑 Password</button>
+        <button class="tab-btn <?= $activeTab==='profile'  ? 'active':'' ?>" onclick="tab('profile',this)">👤 Profile</button>
+        <button class="tab-btn <?= $activeTab==='orders'   ? 'active':'' ?>" onclick="tab('orders',this)">📦 My Orders</button>
+        <button class="tab-btn <?= $activeTab==='password' ? 'active':'' ?>" onclick="tab('password',this)">🔑 Password</button>
     </div>
 
     <!-- PROFILE -->
-    <div class="tab-panel active" id="tab-profile">
+    <div class="tab-pane <?= $activeTab==='profile' ? 'active':'' ?>" id="pane-profile">
         <div class="card">
             <h3>Personal Information</h3>
             <form method="POST">
                 <input type="hidden" name="action" value="update_profile">
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="frow">
+                    <div class="fg">
                         <label>Full Name</label>
-                        <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
+                        <input type="text" name="name"
+                               value="<?= htmlspecialchars($user['name']) ?>" required>
                     </div>
-                    <div class="form-group">
+                    <div class="fg">
                         <label>Phone Number</label>
-                        <input type="tel" name="phone" value="<?= htmlspecialchars($user['phone'] ?? '') ?>" maxlength="10">
+                        <input type="tel" name="phone"
+                               value="<?= htmlspecialchars($user['phone'] ?? '') ?>" maxlength="10">
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="fg">
                     <label>Email (cannot be changed)</label>
                     <input type="email" value="<?= htmlspecialchars($user['email']) ?>" readonly>
                 </div>
                 <button type="submit" class="btn-save">Save Changes</button>
             </form>
         </div>
-        <div class="card" style="text-align:center">
-            <a href="logout.php" class="logout-link">🚪 Logout from this account</a>
+        <div class="card" style="text-align:center;padding:18px">
+            <a href="logout.php" class="logout-lnk">🚪 Logout from this account</a>
         </div>
     </div>
 
     <!-- ORDERS -->
-    <div class="tab-panel" id="tab-orders">
+    <div class="tab-pane <?= $activeTab==='orders' ? 'active':'' ?>" id="pane-orders">
         <div class="card">
             <h3>My Orders</h3>
             <?php if (empty($orders)): ?>
-                <p class="no-orders">No orders yet. <a href="/proburst/pages/shop.php" style="color:#e63946">Start Shopping →</a></p>
+                <div class="no-orders">
+                    No orders placed yet.<br>
+                    <a href="/proburst/pages/shop.php" style="color:#e63946;margin-top:8px;display:inline-block">Start Shopping →</a>
+                </div>
             <?php else: ?>
-                <table class="orders-table">
-                    <thead><tr><th>Order #</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
+                <table class="otable">
+                    <thead>
+                        <tr><th>Order #</th><th>Date</th><th>Total</th><th>Status</th></tr>
+                    </thead>
                     <tbody>
-                    <?php foreach ($orders as $o): ?>
+                    <?php foreach ($orders as $o):
+                        $s   = $o['status'] ?? 'pending';
+                        $cls = match($s) { 'shipped'=>'b-shipped','delivered'=>'b-delivered', default=>'b-pending' };
+                    ?>
                         <tr>
                             <td>#<?= $o['id'] ?></td>
                             <td><?= date('d M Y', strtotime($o['created_at'])) ?></td>
                             <td>₹<?= number_format($o['total']) ?></td>
-                            <td>
-                                <?php $s = $o['status'] ?? 'pending';
-                                $cls = $s === 'shipped' ? 'badge-shipped' : ($s === 'delivered' ? 'badge-delivered' : 'badge-pending'); ?>
-                                <span class="badge <?= $cls ?>"><?= ucfirst($s) ?></span>
-                            </td>
+                            <td><span class="badge <?= $cls ?>"><?= ucfirst($s) ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -212,23 +240,26 @@ $flash         = getFlash();
     </div>
 
     <!-- PASSWORD -->
-    <div class="tab-panel" id="tab-password">
+    <div class="tab-pane <?= $activeTab==='password' ? 'active':'' ?>" id="pane-password">
         <div class="card">
             <h3>Change Password</h3>
             <form method="POST">
                 <input type="hidden" name="action" value="change_password">
-                <div class="form-group">
+                <div class="fg">
                     <label>Current Password</label>
-                    <input type="password" name="current_password" placeholder="Enter current password" required>
+                    <input type="password" name="current_password"
+                           placeholder="Enter current password" required>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
+                <div class="frow">
+                    <div class="fg">
                         <label>New Password</label>
-                        <input type="password" name="new_password" placeholder="Min. 8 characters" required>
+                        <input type="password" name="new_password"
+                               placeholder="Min. 8 characters" required>
                     </div>
-                    <div class="form-group">
+                    <div class="fg">
                         <label>Confirm New Password</label>
-                        <input type="password" name="confirm_password" placeholder="Re-enter" required>
+                        <input type="password" name="confirm_password"
+                               placeholder="Re-enter" required>
                     </div>
                 </div>
                 <button type="submit" class="btn-save">Update Password</button>
@@ -236,18 +267,15 @@ $flash         = getFlash();
         </div>
     </div>
 
-</div>
+</div><!-- /acc-wrap -->
 
 <script>
-function switchTab(name, btn) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+function tab(name, btn) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
+    document.getElementById('pane-' + name).classList.add('active');
     btn.classList.add('active');
 }
-<?php if (!empty($errors) && ($_POST['action'] ?? '') === 'change_password'): ?>
-switchTab('password', document.querySelectorAll('.tab-btn')[2]);
-<?php endif; ?>
 </script>
 
 <?php include '../includes/footer.php'; ?>

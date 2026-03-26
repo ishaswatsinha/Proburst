@@ -1,5 +1,4 @@
 <?php
-// pages/place-order.php
 // Returns plain "success" text — matches what checkout.php JS expects
 
 if (session_status() === PHP_SESSION_NONE) session_start();

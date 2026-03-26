@@ -1,54 +1,45 @@
 <?php
-// =============================================
-// models/User.php
-// Drop this in your existing models/ folder
-// =============================================
 
 class User {
 
-    private PDO $db;
+    private mysqli $db;
 
-    public function __construct(PDO $db) {
+    public function __construct(mysqli $db) {
         $this->db = $db;
     }
 
-    // ----------------------------
-    // Find user by email
-    // ----------------------------
     public function findByEmail(string $email): array|false {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
-        $stmt->execute([$email]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $row ?: false;
     }
 
-    // ----------------------------
-    // Find user by ID
-    // ----------------------------
     public function findById(int $id): array|false {
         $stmt = $this->db->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
-        $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $row ?: false;
     }
 
-    // ----------------------------
-    // Register a new user
-    // ----------------------------
     public function create(string $name, string $email, string $phone, string $password): int|false {
-        // Check duplicate email
         if ($this->findByEmail($email)) return false;
 
         $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-
-        $stmt = $this->db->prepare(
+        $stmt   = $this->db->prepare(
             "INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)"
         );
-        $stmt->execute([$name, $email, $phone, $hashed]);
-        return (int) $this->db->lastInsertId();
+        $stmt->bind_param('ssss', $name, $email, $phone, $hashed);
+        $stmt->execute();
+        $id = $this->db->insert_id;
+        $stmt->close();
+        return $id ?: false;
     }
 
-    // ----------------------------
-    // Verify password and return user
-    // ----------------------------
     public function authenticate(string $email, string $password): array|false {
         $user = $this->findByEmail($email);
         if (!$user) return false;
@@ -56,22 +47,20 @@ class User {
         return $user;
     }
 
-    // ----------------------------
-    // Update profile
-    // ----------------------------
     public function updateProfile(int $id, string $name, string $phone): bool {
-        $stmt = $this->db->prepare(
-            "UPDATE users SET name = ?, phone = ? WHERE id = ?"
-        );
-        return $stmt->execute([$name, $phone, $id]);
+        $stmt = $this->db->prepare("UPDATE users SET name=?, phone=? WHERE id=?");
+        $stmt->bind_param('ssi', $name, $phone, $id);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
     }
 
-    // ----------------------------
-    // Change password
-    // ----------------------------
     public function updatePassword(int $id, string $newPassword): bool {
         $hashed = password_hash($newPassword, PASSWORD_BCRYPT, ['cost' => 12]);
-        $stmt   = $this->db->prepare("UPDATE users SET password = ? WHERE id = ?");
-        return $stmt->execute([$hashed, $id]);
+        $stmt   = $this->db->prepare("UPDATE users SET password=? WHERE id=?");
+        $stmt->bind_param('si', $hashed, $id);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
     }
 }
