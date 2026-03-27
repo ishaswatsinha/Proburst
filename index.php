@@ -48,7 +48,7 @@ if ($discCheck && $discCheck->num_rows > 0) $hasDiscount = true;
     <?php while($cat = $cats->fetch_assoc()): ?>
     <a href="pages/shop.php?category[]=<?php echo $cat['id']; ?>" class="wpl-item">
       <div class="wpl-circle">
-        <img src="assets/images/category<?php echo $cat['id']; ?>.webp" alt="<?php echo htmlspecialchars($cat['name']); ?>">
+        <img src="assets/images/category<?php echo $cat['id']; ?>.jpeg" alt="<?php echo htmlspecialchars($cat['name']); ?>">
       </div>
       <p><?php echo htmlspecialchars($cat['name']); ?></p>
     </a>
@@ -255,30 +255,6 @@ if ($discCheck && $discCheck->num_rows > 0) $hasDiscount = true;
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-     CATEGORIES SECTION (keeping original)
-═══════════════════════════════════════════ -->
-<?php $cats2 = $conn->query("SELECT * FROM categories"); ?>
-<section class="categories-section">
-  <h2 class="section-title">Shop by Category</h2>
-  <div class="category-wrapper">
-    <button class="scroll-btn left" onclick="scrollCategory(-300)">&#8249;</button>
-    <div class="categories-slider" id="catSlider">
-      <?php while($cat = $cats2->fetch_assoc()): ?>
-      <a href="pages/shop.php?category[]=<?php echo $cat['id']; ?>" class="category-card">
-        <div class="category-image">
-          <img src="assets/images/category<?php echo $cat['id']; ?>.webp" alt="<?php echo htmlspecialchars($cat['name']); ?>">
-        </div>
-        <div class="category-overlay">
-          <h3><?php echo strtoupper($cat['name']); ?></h3>
-          <span>Shop Now &#8594;</span>
-        </div>
-      </a>
-      <?php endwhile; ?>
-    </div>
-    <button class="scroll-btn right" onclick="scrollCategory(300)">&#8250;</button>
-  </div>
-</section>
 
 
 <!-- ═══════════════════════════════════════════

@@ -66,44 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  /* =========================
-     PRODUCT TABS
-  ========================= */
-  const tabs = document.querySelectorAll(".tab");
-  const lists = document.querySelectorAll(".product-list");
-
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-
-      tabs.forEach(t => t.classList.remove("active"));
-      lists.forEach(l => l.classList.remove("active"));
-
-      tab.classList.add("active");
-
-      const target = document.getElementById(tab.dataset.tab);
-      if (target) target.classList.add("active");
-    });
-  });
-
-
-  /* =========================
-     ADD TO CART BUTTON FIX
-  ========================= */
-
-  // document.querySelectorAll(".add-cart-btn").forEach(btn => {
-
-  //   btn.addEventListener("click", function() {
-
-  //     const id = this.dataset.id;
-  //     const name = this.dataset.name;
-  //     const price = parseFloat(this.dataset.price);
-  //     const image = this.dataset.image;
-
-  //     addToCart(id, name, price, image, this);
-
-  //   });
-
-  // });
 
 
   /* =========================
@@ -370,26 +332,16 @@ window.onclick = function(e) {
   }
 };
 
-  /* =========================
-     CATEGORY SCROLL
-  ========================= */
-  // window.scrollCategory = function (amount) {
-  //   const slider = document.getElementById("catSlider");
-  //   if (!slider) return;
-
-  //   slider.scrollBy({ left: amount, behavior: "smooth" });
-  // };
-
-
+ 
   /* =========================
      REVIEW SCROLL
   ========================= */
-  // window.scrollReviews = function (amount) {
-  //   const slider = document.getElementById("reviewSlider");
-  //   if (!slider) return;
+  window.scrollReviews = function (amount) {
+    const slider = document.getElementById("reviewSlider");
+    if (!slider) return;
 
-  //   slider.scrollBy({ left: amount, behavior: "smooth" });
-  // };
+    slider.scrollBy({ left: amount, behavior: "smooth" });
+  };
 
   /* =========================
    REVIEW REEL MODAL
@@ -618,7 +570,7 @@ overlay.addEventListener("click", () => {
 });
 
 /* =========================
-   DROPDOWN (FIXED)
+   DROPDOWN 
 ========================= */
 
 /* CATEGORY DROPDOWN */
