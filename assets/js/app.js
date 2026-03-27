@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* =========================
      ADD TO CART
   ========================= */
-  window.addToCart = function (id, name, price, image, btn = null) {
+  window.addToCart = function (id, name, price, image, btn = null, qty = 1) {
 
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
@@ -120,9 +120,9 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("Max quantity reached");
         return;
       }
-      existing.qty += 1;
+      existing.qty += qty;
     } else {
-      cart.push({ id, name, price, image, qty: 1 });
+      cart.push({ id, name, price, image, qty: qty });
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -823,3 +823,5 @@ function showMsg(msg, type) {
   el.textContent      = msg;
   el.scrollIntoView({ behavior: 'smooth' });
 }
+
+
