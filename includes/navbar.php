@@ -1,16 +1,17 @@
 <?php
 // includes/navbar.php
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE)
+  session_start();
 require_once __DIR__ . '/../includes/auth.php';
 include __DIR__ . '/../config/database.php';
 
 $catQuery = $conn->query("SELECT * FROM categories");
 
 $navAvatarInitial = '';
-$navFirstName     = '';
+$navFirstName = '';
 if (isLoggedIn() && !empty($_SESSION['user_name'])) {
-    $navAvatarInitial = strtoupper(mb_substr($_SESSION['user_name'], 0, 1));
-    $navFirstName     = htmlspecialchars(explode(' ', $_SESSION['user_name'])[0]);
+  $navAvatarInitial = strtoupper(mb_substr($_SESSION['user_name'], 0, 1));
+  $navFirstName = htmlspecialchars(explode(' ', $_SESSION['user_name'])[0]);
 }
 ?>
 
@@ -46,14 +47,26 @@ if (isLoggedIn() && !empty($_SESSION['user_name'])) {
   <?php if (isLoggedIn()): ?>
     <div class="nav-user-menu">
       <a href="/proburst/pages/account.php" class="nav-user-btn">
-        <span class="nav-avatar"><?= $navAvatarInitial ?></span>
-        <span><?= $navFirstName ?></span>
+
       </a>
+
+      <?php if ($_SESSION['user_role'] === 'user'): ?>
+        <a href="/proburst/pages/account.php" style="color:#ff4d00;font-weight:600;margin-right:10px;">
+          <span class="nav-avatar"><?= $navAvatarInitial ?></span>
+          <span><?= $navFirstName ?></span>
+        </a>
+      <?php endif; ?>
+
+      <?php if ($_SESSION['user_role'] === 'admin'): ?>
+        <a href="/proburst/admin/" style="color:#ff4d00;font-weight:600;margin-right:10px; ">⚡<span><?= $navFirstName ?></span>
+</a>
+      <?php endif; ?>
+
       <a href="/proburst/pages/logout.php" class="nav-logout-btn">Logout</a>
     </div>
   <?php else: ?>
     <div class="nav-auth-btns">
-      <a href="/proburst/pages/login.php"    class="nav-login-btn">Login</a>
+      <a href="/proburst/pages/login.php" class="nav-login-btn">Login</a>
       <a href="/proburst/pages/register.php" class="nav-register-btn">Sign Up</a>
     </div>
   <?php endif; ?>
@@ -69,14 +82,14 @@ if (isLoggedIn() && !empty($_SESSION['user_name'])) {
     <li class="dropdown">
       <a href="/proburst/pages/shop.php">Products</a>
       <div class="dropdown-menu">
-        <?php while($cat = $catQuery->fetch_assoc()): ?>
+        <?php while ($cat = $catQuery->fetch_assoc()): ?>
           <div class="dropdown-item has-submenu">
             <span><?= $cat['name'] ?> ›</span>
             <div class="submenu">
               <?php
-              $subQuery = $conn->query("SELECT * FROM subcategories WHERE category_id=" . (int)$cat['id']);
-              while($sub = $subQuery->fetch_assoc()):
-              ?>
+              $subQuery = $conn->query("SELECT * FROM subcategories WHERE category_id=" . (int) $cat['id']);
+              while ($sub = $subQuery->fetch_assoc()):
+                ?>
                 <a href="/proburst/pages/shop.php?subcategory=<?= $sub['id'] ?>">
                   <div><?= $sub['name'] ?></div>
                 </a>
@@ -94,5 +107,3 @@ if (isLoggedIn() && !empty($_SESSION['user_name'])) {
 </div>
 
 <div class="overlay" id="overlay"></div>
-
-

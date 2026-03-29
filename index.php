@@ -225,34 +225,124 @@ if ($discCheck && $discCheck->num_rows > 0) $hasDiscount = true;
 
 
 <!-- ═══════════════════════════════════════════
-     HOT DEALS
+     HOT OFFERS  (same card style as Newly Launched)
 ═══════════════════════════════════════════ -->
 <section class="hot-offers">
-  <h2 class="section-title">&#128293; Hot Offers</h2>
-  <div class="offers-wrapper">
-    <button class="offer-nav prev">&#10094;</button>
-    <div class="offers-container" id="offersSlider">
+
+  <div class="ho-header">
+    <h2 class="ho-title">&#128293; Hot <span>Offers</span></h2>
+    <a href="pages/shop.php" class="ho-view-all">View All &#8594;</a>
+  </div>
+
+  <div class="ho-wrapper">
+    <button class="ho-nav" id="hoPrev" aria-label="Previous">&#10094;</button>
+
+    <div class="ho-slider" id="hoSlider">
       <?php
-      $offers = $conn->query("SELECT * FROM products ORDER BY RAND() LIMIT 8");
+      // Fetch hot offer products — use discount_percent to pick discounted ones first
+      // Falls back to RAND() if no discount data set
+      $offers = $conn->query("
+        SELECT * FROM products
+        ORDER BY discount_percent DESC, RAND()
+        LIMIT 10
+      ");
       while($row = $offers->fetch_assoc()):
+        // Calculate MRP & discount — same logic as Newly Launched
+        if ($hasDiscount && !empty($row['discount_percent'])) {
+          $ho_disc = (int)$row['discount_percent'];
+          $ho_mrp  = $hasMrp && !empty($row['mrp']) ? (float)$row['mrp'] : round($row['price'] * 100 / (100 - $ho_disc));
+        } elseif ($hasMrp && !empty($row['mrp'])) {
+          $ho_mrp  = (float)$row['mrp'];
+          $ho_disc = $ho_mrp > $row['price'] ? round(($ho_mrp - $row['price']) / $ho_mrp * 100) : 0;
+        } else {
+          $ho_disc = rand(20, 45);
+          $ho_mrp  = round($row['price'] * 100 / (100 - $ho_disc));
+        }
+        $ho_reviews = rand(15, 400);
       ?>
-      <div class="offer-card">
-        <div class="offer-badge">SALE</div>
-        <img src="assets/images/<?php echo $row['image']; ?>" alt="<?php echo htmlspecialchars($row['name']); ?>">
-        <h3><?php echo htmlspecialchars($row['name']); ?></h3>
-        <p class="offer-price">
-          &#8377;<?php echo number_format($row['price']); ?>
-          <span>&#8377;<?php echo number_format($row['price'] + 500); ?></span>
-        </p>
-        <button onclick="addToCart(<?php echo $row['id']; ?>,<?php echo json_encode($row['name']); ?>,<?php echo (float)$row['price']; ?>,<?php echo json_encode($row['image']); ?>,this)">
-          Grab Deal &#8594;
-        </button>
+      <div class="ho-card"
+           data-id="<?php echo $row['id']; ?>"
+           data-name="<?php echo htmlspecialchars($row['name'], ENT_QUOTES); ?>"
+           data-price="<?php echo $row['price']; ?>"
+           data-image="<?php echo $row['image']; ?>"
+           data-slug="<?php echo $row['slug']; ?>">
+
+        <!-- DISCOUNT BADGE -->
+        <div class="ho-badge">Save up to <?php echo $ho_disc; ?>%</div>
+
+        <!-- LABEL: HOT -->
+        <div class="ho-fire-tag">&#128293; HOT</div>
+
+        <!-- IMAGE -->
+        <a href="pages/product.php?slug=<?php echo $row['slug']; ?>" class="ho-img-link">
+          <div class="ho-img-box">
+            <img src="assets/images/<?php echo $row['image']; ?>"
+                 alt="<?php echo htmlspecialchars($row['name']); ?>"
+                 loading="lazy">
+          </div>
+        </a>
+
+        <!-- INFO -->
+        <div class="ho-info">
+          <h3>
+            <a href="pages/product.php?slug=<?php echo $row['slug']; ?>">
+              <?php echo htmlspecialchars($row['name']); ?>
+            </a>
+          </h3>
+          <div class="ho-price-row">
+            <span class="ho-mrp">&#8377;<?php echo number_format($ho_mrp); ?></span>
+            <span class="ho-price">&#8377;<?php echo number_format($row['price']); ?></span>
+          </div>
+          <div class="ho-rating">
+            <span class="ho-stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span>
+            <span class="ho-rcount"><?php echo $ho_reviews; ?> Reviews</span>
+          </div>
+          <div class="ho-stock-tag">&#10004; In stock</div>
+        </div>
+
+        <!-- HOVER ACTIONS -->
+        <div class="ho-hover-actions">
+          <button class="ho-btn-cart"
+                  onclick="hoQuickAdd(this, event)"
+                  data-id="<?php echo $row['id']; ?>"
+                  data-name="<?php echo htmlspecialchars($row['name'], ENT_QUOTES); ?>"
+                  data-price="<?php echo $row['price']; ?>"
+                  data-image="<?php echo $row['image']; ?>">
+            Add to Cart
+          </button>
+          <button class="ho-btn-options"
+                  onclick="openChooseOptions(<?php echo $row['id']; ?>, event)">
+            Choose Options
+          </button>
+        </div>
+
       </div>
       <?php endwhile; ?>
     </div>
-    <button class="offer-nav next">&#10095;</button>
+
+    <button class="ho-nav" id="hoNext" aria-label="Next">&#10095;</button>
   </div>
+
 </section>
+
+<script>
+/* HOT OFFERS SLIDER */
+(function () {
+  var slider = document.getElementById('hoSlider');
+  var prev   = document.getElementById('hoPrev');
+  var next   = document.getElementById('hoNext');
+  if (!slider) return;
+  next.addEventListener('click', function () { slider.scrollBy({ left: 300, behavior: 'smooth' }); });
+  prev.addEventListener('click', function () { slider.scrollBy({ left: -300, behavior: 'smooth' }); });
+})();
+
+/* HOT OFFERS Quick Add */
+function hoQuickAdd(btn, e) {
+  e.preventDefault();
+  e.stopPropagation();
+  addToCart(btn.dataset.id, btn.dataset.name, parseFloat(btn.dataset.price), btn.dataset.image, btn);
+}
+</script>
 
 
 
