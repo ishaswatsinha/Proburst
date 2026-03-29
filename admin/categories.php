@@ -131,7 +131,7 @@ adminSidebar($navItems, $currentPage);
   <div class="table-card-header">
     <span class="table-card-title">All Categories (<?= $cats->num_rows ?>)</span>
   </div>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr><th>#</th><th>Name</th><th>Slug</th><th>Subcategories</th><th>Actions</th></tr></thead>
     <tbody>
     <?php while($c=$cats->fetch_assoc()): ?>
@@ -150,7 +150,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
 </div>
 
 <!-- SUBCATEGORIES TABLE -->
@@ -158,7 +158,7 @@ adminSidebar($navItems, $currentPage);
   <div class="table-card-header">
     <span class="table-card-title">All Subcategories (<?= $subs->num_rows ?>)</span>
   </div>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr><th>#</th><th>Name</th><th>Parent Category</th><th>Slug</th><th>Actions</th></tr></thead>
     <tbody>
     <?php while($s=$subs->fetch_assoc()): ?>
@@ -177,7 +177,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
 </div>
 
 <?php adminClose(); ?>

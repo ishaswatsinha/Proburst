@@ -67,7 +67,7 @@ adminSidebar($navItems, $currentPage);
     <span class="table-card-title">Recent Orders</span>
     <a href="orders.php" class="btn btn-ghost btn-sm">View All →</a>
   </div>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr>
       <th>#ID</th><th>Customer</th><th>City</th><th>Total</th><th>Status</th><th>Date</th><th>Action</th>
     </tr></thead>
@@ -84,7 +84,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
 </div>
 
 <!-- LOW STOCK -->
@@ -94,7 +94,7 @@ adminSidebar($navItems, $currentPage);
     <span class="table-card-title">⚠️ Low Stock Alert</span>
     <a href="products.php" class="btn btn-ghost btn-sm">Manage Products</a>
   </div>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr><th>Product</th><th>Stock Left</th><th>Price</th><th>Action</th></tr></thead>
     <tbody>
     <?php while($p = $lowStock->fetch_assoc()): ?>
@@ -110,7 +110,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
 </div>
 <?php endif; ?>
 

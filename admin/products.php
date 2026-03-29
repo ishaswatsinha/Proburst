@@ -324,7 +324,7 @@ adminSidebar($navItems, $currentPage);
     <span class="table-card-title">All Products (<?= $products->num_rows ?>)</span>
   </div>
   <?php if ($products->num_rows > 0): ?>
-  <table>
+  <div class="table-scroll"><table>
     <thead>
       <tr>
         <th>Image</th>
@@ -367,7 +367,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
   <?php else: ?>
     <div class="empty-state">
       <div class="empty-icon">🛒</div>

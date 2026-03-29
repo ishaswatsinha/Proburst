@@ -101,7 +101,7 @@ adminSidebar($navItems, $currentPage);
     <span class="table-card-title">All Reviews (<?= $reviews->num_rows ?>)</span>
   </div>
   <?php if($reviews->num_rows > 0): ?>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr><th>Name</th><th>Role</th><th>Title</th><th>Video</th><th>Likes</th><th>Verified</th><th>Actions</th></tr></thead>
     <tbody>
     <?php while($r=$reviews->fetch_assoc()): ?>
@@ -125,7 +125,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
   <?php else: ?>
     <div class="empty-state"><div class="empty-icon">⭐</div><p>No reviews yet.</p></div>
   <?php endif; ?>

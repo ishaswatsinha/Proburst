@@ -72,7 +72,7 @@ adminSidebar($navItems, $currentPage);
     <span class="table-card-title">All Users (<?= $users->num_rows ?>)</span>
   </div>
   <?php if($users->num_rows > 0): ?>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr>
       <th>User</th><th>Email</th><th>Phone</th><th>Role</th><th>Orders</th><th>Total Spent</th><th>Joined</th><th>Actions</th>
     </tr></thead>
@@ -111,7 +111,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
   <?php else: ?>
     <div class="empty-state"><div class="empty-icon">👥</div><p>No users found.</p></div>
   <?php endif; ?>

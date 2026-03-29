@@ -81,7 +81,7 @@ adminSidebar($navItems, $currentPage);
   <!-- ITEMS -->
   <div class="divider"></div>
   <p class="text-muted" style="font-size:11px;text-transform:uppercase;margin-bottom:12px">Items Ordered</p>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr></thead>
     <tbody>
     <?php foreach($orderItems as $it): ?>
@@ -96,7 +96,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endforeach; ?>
     </tbody>
-  </table>
+  </table></div>
 
   <!-- UPDATE STATUS -->
   <div class="divider"></div>
@@ -130,7 +130,7 @@ adminSidebar($navItems, $currentPage);
     <span class="table-card-title">All Orders (<?= $orders->num_rows ?>)</span>
   </div>
   <?php if($orders->num_rows > 0): ?>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr>
       <th>#ID</th><th>Customer</th><th>Phone</th><th>City</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th>
     </tr></thead>
@@ -161,7 +161,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
   <?php else: ?>
     <div class="empty-state"><div class="empty-icon">📦</div><p>No orders found.</p></div>
   <?php endif; ?>

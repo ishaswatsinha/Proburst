@@ -65,7 +65,7 @@ adminSidebar($navItems, $currentPage);
     <?php endif; ?>
   </div>
   <?php if($leads->num_rows > 0): ?>
-  <table>
+  <div class="table-scroll"><table>
     <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>City</th><th>Date</th><th>Actions</th></tr></thead>
     <tbody>
     <?php while($l=$leads->fetch_assoc()): ?>
@@ -85,7 +85,7 @@ adminSidebar($navItems, $currentPage);
     </tr>
     <?php endwhile; ?>
     </tbody>
-  </table>
+  </table></div>
   <?php else: ?>
     <div class="empty-state"><div class="empty-icon">📋</div><p>No franchise leads yet.</p></div>
   <?php endif; ?>
