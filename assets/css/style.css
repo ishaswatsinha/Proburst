@@ -3437,7 +3437,7 @@ LOGIN PAGE
 ═══════════════════════════════════════════════════════════ */
 .what-people-love {
   padding: 60px 5%;
-  background: #fff;
+  background: #fafafa;
   text-align: center;
 }
 .wpl-title {
@@ -3467,7 +3467,7 @@ LOGIN PAGE
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  background: #f2f2f2;
+  background: #ffffff;
   overflow: hidden;
   display: flex;
   align-items: center;

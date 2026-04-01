@@ -12,7 +12,8 @@ $navItems = [
     'categories' => ['icon' => '🗂️',  'label' => 'Categories'],
     'users'      => ['icon' => '👥', 'label' => 'Users'],
     'reviews'    => ['icon' => '⭐', 'label' => 'Reviews'],
-    'leads'      => ['icon' => '📋', 'label' => 'Franchise Leads'],
+    'leads'           => ['icon' => '📋', 'label' => 'Franchise Leads'],
+    'product_reviews' => ['icon' => '⭐', 'label' => 'Product Reviews'],
 ];
 
 function adminHead(string $title): void {
