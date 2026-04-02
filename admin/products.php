@@ -25,8 +25,31 @@ $imgDir = __DIR__ . '/../assets/images/';
 // ── DELETE PRODUCT ──
 if (isset($_GET['delete'])) {
     $did = (int)$_GET['delete'];
+
+    // 1. Fetch cover image BEFORE deleting
+    $prodRow = $conn->query("SELECT image FROM products WHERE id=$did")->fetch_assoc();
+
+    // 2. Fetch all gallery images BEFORE deleting
+    $galRes  = $conn->query("SELECT image FROM product_images WHERE product_id=$did");
+    $galImgs = [];
+    if ($galRes) while ($g = $galRes->fetch_assoc()) $galImgs[] = $g['image'];
+
+    // 3. Delete from DB (gallery rows cascade-delete via FK)
     $conn->query("DELETE FROM products WHERE id=$did");
-    $msg = "Product deleted successfully.";
+
+    // 4. Delete cover image from disk
+    if (!empty($prodRow['image'])) {
+        $p = $imgDir . $prodRow['image'];
+        if (file_exists($p)) @unlink($p);
+    }
+
+    // 5. Delete every gallery image from disk
+    foreach ($galImgs as $gf) {
+        $p = $imgDir . $gf;
+        if (file_exists($p)) @unlink($p);
+    }
+
+    $msg = "Product and all its images deleted successfully.";
 }
 
 // ── DELETE GALLERY IMAGE ──

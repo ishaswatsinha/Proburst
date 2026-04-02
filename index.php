@@ -19,6 +19,20 @@ if ($colCheck && $colCheck->num_rows > 0) $hasMrp = true;
 $hasDiscount = false;
 $discCheck = $conn->query("SHOW COLUMNS FROM products LIKE 'discount_percent'");
 if ($discCheck && $discCheck->num_rows > 0) $hasDiscount = true;
+
+// Top Selling Products — ranked by total qty sold from order_items
+// Falls back to highest-stock products if no orders exist yet
+$topSellers = $conn->query("
+  SELECT p.*,
+         COALESCE(SUM(oi.qty), 0) AS total_sold
+  FROM products p
+  LEFT JOIN order_items oi ON oi.product_id = p.id
+  LEFT JOIN orders o ON o.id = oi.order_id
+    AND o.status != 'cancelled'
+  GROUP BY p.id
+  ORDER BY total_sold DESC, p.stock DESC
+  LIMIT 10
+");
 ?>
 
 <!-- ═══════════════════════════════════════════
@@ -338,6 +352,132 @@ if ($discCheck && $discCheck->num_rows > 0) $hasDiscount = true;
 
 /* HOT OFFERS Quick Add */
 function hoQuickAdd(btn, e) {
+  e.preventDefault();
+  e.stopPropagation();
+  addToCart(btn.dataset.id, btn.dataset.name, parseFloat(btn.dataset.price), btn.dataset.image, btn);
+}
+</script>
+
+
+<!-- ======================================================
+ TOP SELLING PRODUCTS
+ ===================================================== -->
+
+ 
+<section class="top-sellers">
+
+  <div class="ts-header">
+    <h2 class="ts-title">&#127942; Top <span>Selling</span></h2>
+    <a href="pages/shop.php" class="ts-view-all">View All &#8594;</a>
+  </div>
+
+  <div class="ts-wrapper">
+    <button class="ts-nav" id="tsPrev" aria-label="Previous">&#10094;</button>
+
+    <div class="ts-slider" id="tsSlider">
+      <?php
+      while ($row = $topSellers->fetch_assoc()):
+        // Calculate MRP & discount — same logic as Newly Launched and Hot Offers
+        if ($hasDiscount && !empty($row['discount_percent'])) {
+          $ts_disc = (int)$row['discount_percent'];
+          $ts_mrp  = $hasMrp && !empty($row['mrp']) ? (float)$row['mrp'] : round($row['price'] * 100 / (100 - $ts_disc));
+        } elseif ($hasMrp && !empty($row['mrp'])) {
+          $ts_mrp  = (float)$row['mrp'];
+          $ts_disc = $ts_mrp > $row['price'] ? round(($ts_mrp - $row['price']) / $ts_mrp * 100) : 0;
+        } else {
+          $ts_disc = rand(15, 35);
+          $ts_mrp  = round($row['price'] * 100 / (100 - $ts_disc));
+        }
+        $ts_sold    = (int)$row['total_sold'];
+        $ts_reviews = rand(80, 600);
+      ?>
+      <div class="ts-card"
+           data-id="<?php echo $row['id']; ?>"
+           data-name="<?php echo htmlspecialchars($row['name'], ENT_QUOTES); ?>"
+           data-price="<?php echo $row['price']; ?>"
+           data-mrp="<?php echo $ts_mrp; ?>"
+           data-disc="<?php echo $ts_disc; ?>"
+           data-image="<?php echo $row['image']; ?>"
+           data-slug="<?php echo $row['slug']; ?>">
+
+        <!-- DISCOUNT BADGE -->
+        <div class="ts-badge">Save up to <?php echo $ts_disc; ?>%</div>
+
+        <!-- BESTSELLER TAG -->
+        <div class="ts-best-tag">&#127942; BESTSELLER</div>
+
+        <!-- IMAGE -->
+        <a href="pages/product.php?slug=<?php echo $row['slug']; ?>" class="ts-img-link">
+          <div class="ts-img-box">
+            <img src="assets/images/<?php echo $row['image']; ?>"
+                 alt="<?php echo htmlspecialchars($row['name']); ?>"
+                 loading="lazy">
+          </div>
+        </a>
+
+        <!-- INFO -->
+        <div class="ts-info">
+          <h3>
+            <a href="pages/product.php?slug=<?php echo $row['slug']; ?>">
+              <?php echo htmlspecialchars($row['name']); ?>
+            </a>
+          </h3>
+          <div class="ts-price-row">
+            <span class="ts-mrp">&#8377;<?php echo number_format($ts_mrp); ?></span>
+            <span class="ts-price">&#8377;<?php echo number_format($row['price']); ?></span>
+          </div>
+          <div class="ts-rating">
+            <span class="ts-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+            <span class="ts-rcount"><?php echo $ts_reviews; ?> Reviews</span>
+          </div>
+          <!-- Sold count badge -->
+          <div class="ts-sold-row">
+            <?php if ($ts_sold > 0): ?>
+              <span class="ts-sold-badge">&#128293; <?php echo number_format($ts_sold); ?> sold</span>
+            <?php else: ?>
+              <span class="ts-sold-badge">&#128293; Best Seller</span>
+            <?php endif; ?>
+          </div>
+        </div>
+
+        <!-- HOVER ACTIONS -->
+        <div class="ts-hover-actions">
+          <button class="ts-btn-cart"
+                  onclick="tsQuickAdd(this, event)"
+                  data-id="<?php echo $row['id']; ?>"
+                  data-name="<?php echo htmlspecialchars($row['name'], ENT_QUOTES); ?>"
+                  data-price="<?php echo $row['price']; ?>"
+                  data-image="<?php echo $row['image']; ?>">
+            Add to Cart
+          </button>
+          <button class="ts-btn-options"
+                  onclick="openChooseOptions(<?php echo $row['id']; ?>, event)">
+            Choose Options
+          </button>
+        </div>
+
+      </div>
+      <?php endwhile; ?>
+    </div>
+
+    <button class="ts-nav" id="tsNext" aria-label="Next">&#10095;</button>
+  </div>
+
+</section>
+
+<script>
+/* TOP SELLERS SLIDER */
+(function () {
+  var slider = document.getElementById('tsSlider');
+  var prev   = document.getElementById('tsPrev');
+  var next   = document.getElementById('tsNext');
+  if (!slider) return;
+  next.addEventListener('click', function () { slider.scrollBy({ left: 300, behavior: 'smooth' }); });
+  prev.addEventListener('click', function () { slider.scrollBy({ left: -300, behavior: 'smooth' }); });
+})();
+
+/* TOP SELLERS Quick Add */
+function tsQuickAdd(btn, e) {
   e.preventDefault();
   e.stopPropagation();
   addToCart(btn.dataset.id, btn.dataset.name, parseFloat(btn.dataset.price), btn.dataset.image, btn);
