@@ -160,271 +160,238 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => toast.classList.remove("show"), 2000);
   }
 
-  /* =========================
-     VIDEO REELS 
-  ========================= */
+  /* ══════════════════════════════════════════════════
+   RUP VIDEO SECTION — SHOP OUR MOST LOVED PRODUCTS
+══════════════════════════════════════════════════ */
 
-  let allVideos = [];
-
-  /* COLLECT DATA */
-  document.querySelectorAll(".video-card").forEach(card => {
-    allVideos.push({
-      id: card.dataset.id,
-      video: card.dataset.video,
-      name: card.dataset.name,
-      price: card.dataset.price,
-      image: card.dataset.image
+// ── data embedded from PHP data-* attributes ──
+var rupVideos = (function() {
+  var cards = document.querySelectorAll('.rup-video-card');
+  var out = [];
+  cards.forEach(function(card) {
+    out.push({
+      index: parseInt(card.dataset.index),
+      video: card.querySelector('.rup-card-video source') ? card.querySelector('.rup-card-video source').src : '',
+      name:  card.querySelector('.rup-chip-name')  ? card.querySelector('.rup-chip-name').textContent.trim()  : '',
+      price: card.querySelector('.rup-chip-prices strong') ? card.querySelector('.rup-chip-prices strong').textContent.trim() : '',
+      image: card.querySelector('.rup-product-chip img')  ? card.querySelector('.rup-product-chip img').src   : '',
+      pimg:  card.querySelector('.rup-product-chip img')  ? card.querySelector('.rup-product-chip img').src   : '',
     });
   });
+  return out;
+})();
+var rupCurIdx = 0;
 
+window.rupOpenModal = function(idx) {
+  rupCurIdx = idx;
+  var modal = document.getElementById('rupModal');
+  if (!modal || !rupVideos.length) return;
+  rupSetModalVideo(idx);
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
 
-  /* OPEN MODAL */
-  window.openReel = function () {
-
-    const modal = document.getElementById("reelModal");
-    const container = document.getElementById("reelContainer");
-
-    if (!modal || !container) return;
-
-    container.innerHTML = allVideos.map(v => `
-    <div class="reel">
-
-      <video playsinline loop>
-        <source src="assets/videos/${v.video}">
-      </video>
-
-      <div class="mute-btn">🔊</div>
-
-      <div class="reel-overlay">
-        <h3>${v.name}</h3>
-        <p>₹${v.price}</p>
-<button 
-  class="add-cart-btn"
-  onclick="addToCart(
-    ${v.id},
-    '${v.name.replace(/'/g, "\\'")}',
-    ${v.price},
-    '${v.image}',
-    this
-  )"
->
-  Add to Cart
-</button>
-
-
-      </div>
-
-    </div>
-  `).join("");
-
-    modal.style.display = "flex";
-    document.body.style.overflow = "hidden";
-
-    observeVideos();
-  };
-
-
-
-
-
-  /* CLOSE */
-  function closeReel() {
-    const modal = document.getElementById("reelModal");
-    if (!modal) return;
-
-    modal.style.display = "none";
-    document.body.style.overflow = "auto";
-
-    document.querySelectorAll(".reel video").forEach(v => v.pause());
+function rupSetModalVideo(idx) {
+  if (idx < 0) idx = rupVideos.length - 1;
+  if (idx >= rupVideos.length) idx = 0;
+  rupCurIdx = idx;
+  var v = rupVideos[idx];
+  var vid = document.getElementById('rupModalVideo');
+  if (vid) { vid.src = v.video; vid.play(); }
+  var counter = document.getElementById('rupModalCounter');
+  if (counter) counter.textContent = (idx + 1) + ' / ' + rupVideos.length;
+  var pname  = document.getElementById('rupModalPName');
+  var pprice = document.getElementById('rupModalPPrice');
+  var pimg   = document.getElementById('rupModalPImg');
+  if (pname)  pname.textContent  = v.name;
+  if (pprice) pprice.textContent = v.price;
+  if (pimg)   pimg.src = v.pimg;
+  // Wire up Add to Cart button — re-assign onclick each time
+  var cartBtn = document.getElementById('rupModalCartBtn');
+  if (cartBtn) {
+    cartBtn.onclick = function() {
+      var priceNum = parseFloat(String(v.price).replace(/[^\d.]/g, '')) || 0;
+      var imgFile = v.image.split('/').pop();
+      addToCart(rupVideos[idx] ? idx : 0, v.name, priceNum, imgFile, cartBtn);
+    };
   }
+}
 
-  /* CLOSE BUTTON */
-  document.getElementById("closeReelBtn")?.addEventListener("click", closeReel);
+window.rupModalNav = function(dir) {
+  rupSetModalVideo(rupCurIdx + dir);
+};
 
-  /* CLICK OUTSIDE */
-  document.getElementById("reelModal")?.addEventListener("click", function (e) {
-    if (e.target.id === "reelModal") closeReel();
+window.rupCloseModal = function() {
+  var modal = document.getElementById('rupModal');
+  var vid   = document.getElementById('rupModalVideo');
+  if (vid) { vid.pause(); vid.src = ''; }
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+// Close on backdrop click
+(function() {
+  var m = document.getElementById('rupModal');
+  if (m) m.addEventListener('click', function(e) { if (e.target === m) rupCloseModal(); });
+})();
+
+// Scroll track
+window.rupScroll = function(dir) {
+  var t = document.getElementById('rupVideoTrack');
+  if (t) t.scrollBy({ left: dir * 300, behavior: 'smooth' });
+};
+
+
+/* ══════════════════════════════════════════════
+   INFLUENCER SECTION
+══════════════════════════════════════════════ */
+var rupInfVideos = (function() {
+  var cards = document.querySelectorAll('.rup-inf-card');
+  var out = [];
+  cards.forEach(function(card) {
+    out.push({
+      name:  card.querySelector('.rup-inf-name')  ? card.querySelector('.rup-inf-name').textContent.trim()  : '',
+      video: card.getAttribute('onclick') // will extract from onclick
+    });
   });
-
-
-  /* AUTO PLAY */
-  function observeVideos() {
-
-    const videos = document.querySelectorAll(".reel video");
-
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-
-        if (entry.isIntersecting) {
-          entry.target.muted = false;
-          entry.target.volume = 1;
-          entry.target.play();
-        } else {
-          entry.target.pause();
-        }
-
-      });
-    }, { threshold: 0.7 });
-
-    videos.forEach(v => observer.observe(v));
-  }
-
-
-  /* =========================
-     GLOBAL CLICK HANDLER
-  ========================= */
-
-  document.addEventListener("click", function (e) {
-
-    /* MUTE BUTTON */
-    const muteBtn = e.target.closest(".mute-btn");
-    if (muteBtn) {
-      const video = muteBtn.closest(".reel").querySelector("video");
-
-      video.muted = !video.muted;
-      muteBtn.innerText = video.muted ? "🔇" : "🔊";
-    }
-
+  return out;
+})();
+// Collect inf data from PHP-rendered elements
+var rupInfData = [];
+(function() {
+  document.querySelectorAll('.rup-inf-card').forEach(function(card, i) {
+    var img  = card.querySelector('img');
+    var name = card.querySelector('.rup-inf-name');
+    rupInfData.push({
+      name:  name  ? name.textContent.trim()  : '',
+      thumb: img   ? img.src                  : '',
+    });
   });
+})();
+var rupInfCur = 0;
 
+window.rupOpenInf = function(idx) {
+  // Get video path from the card's onclick attr — we need it from the video element
+  // Since influencer cards have no inline video, use the thumbnail src pattern
+  // The video src comes from the PHP data stored in the card click
+  // We parse it from the onclick attribute of the card
+  var cards = document.querySelectorAll('.rup-inf-card');
+  if (!cards[idx]) return;
+  var onclickStr = cards[idx].getAttribute('onclick');
+  // onclick="rupOpenInf(N)" — we need to get the video from the DOM differently
+  // The PHP renders the card with onclick only, no video path in data attr
+  // We'll store video path in data-video on each card
+  var videoSrc = cards[idx].dataset.video || '';
+  if (!videoSrc) return;
 
-  /* =========================
-   INFLUENCER VIDEO MODAL
-========================= */
+  rupInfCur = idx;
+  var modal = document.getElementById('rupInfModal');
+  var vid   = document.getElementById('rupInfVideo');
+  var name  = document.getElementById('rupInfName');
+  if (!modal || !vid) return;
+  vid.src = videoSrc;
+  vid.play();
+  if (name) name.textContent = rupInfData[idx] ? rupInfData[idx].name : '';
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
 
-// Open modal and play video
-window.openInfluencer = function(videoPath) {
-  const modal = document.getElementById("infModal");
-  const video = document.getElementById("infVideo");
+window.rupInfNav = function(dir) {
+  var cards = document.querySelectorAll('.rup-inf-card');
+  var next = rupInfCur + dir;
+  if (next < 0) next = cards.length - 1;
+  if (next >= cards.length) next = 0;
+  rupOpenInf(next);
+};
 
-  // Set video source
-  video.src = videoPath;
+window.rupCloseInf = function() {
+  var modal = document.getElementById('rupInfModal');
+  var vid   = document.getElementById('rupInfVideo');
+  if (vid) { vid.pause(); vid.src = ''; }
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+};
 
-  // Show modal
-  modal.style.display = "flex";
+(function() {
+  var m = document.getElementById('rupInfModal');
+  if (m) m.addEventListener('click', function(e) { if (e.target === m) rupCloseInf(); });
+})();
 
-  // Play video
-  video.play();
+window.rupInfScroll = function(dir) {
+  var t = document.getElementById('rupInfTrack');
+  if (t) t.scrollBy({ left: dir * 280, behavior: 'smooth' });
 };
 
 
-// Close modal
-window.closeInfluencer = function() {
-  const modal = document.getElementById("infModal");
-  const video = document.getElementById("infVideo");
+/* ══════════════════════════════════════════════
+   REVIEWS SECTION
+══════════════════════════════════════════════ */
+var rupRevCur = 0;
 
-  // Pause and reset video
-  video.pause();
-  video.currentTime = 0;
-  video.src = "";
-
-  // Hide modal
-  modal.style.display = "none";
+window.rupOpenRev = function(idx) {
+  var cards = document.querySelectorAll('.rup-rev-card');
+  if (!cards[idx]) return;
+  rupRevCur = idx;
+  var videoSrc = cards[idx].dataset.video || '';
+  var revName  = cards[idx].dataset.name  || '';
+  var revRole  = cards[idx].dataset.role  || '';
+  var modal = document.getElementById('rupRevModal');
+  var vid   = document.getElementById('rupRevVideo');
+  if (!modal || !vid) return;
+  vid.src = videoSrc;
+  vid.play();
+  var n = document.getElementById('rupRevModalName');
+  var r = document.getElementById('rupRevModalRole');
+  if (n) n.textContent = revName;
+  if (r) r.textContent = revRole;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
 };
 
+window.rupRevNav = function(dir) {
+  var cards = document.querySelectorAll('.rup-rev-card');
+  var next = rupRevCur + dir;
+  if (next < 0) next = cards.length - 1;
+  if (next >= cards.length) next = 0;
+  rupOpenRev(next);
+};
 
-// Optional: close modal when clicking outside video
-window.onclick = function(e) {
-  const modal = document.getElementById("infModal");
+window.rupCloseRev = function() {
+  var modal = document.getElementById('rupRevModal');
+  var vid   = document.getElementById('rupRevVideo');
+  if (vid) { vid.pause(); vid.src = ''; }
+  if (modal) modal.classList.remove('open');
+  document.body.style.overflow = '';
+};
 
-  if (e.target === modal) {
-    closeInfluencer();
+(function() {
+  var m = document.getElementById('rupRevModal');
+  if (m) m.addEventListener('click', function(e) { if (e.target === m) rupCloseRev(); });
+})();
+
+window.rupRevScroll = function(dir) {
+  var t = document.getElementById('rupRevTrack');
+  if (t) t.scrollBy({ left: dir * 280, behavior: 'smooth' });
+};
+
+// Keyboard nav for all modals
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    rupCloseModal(); rupCloseInf(); rupCloseRev();
   }
-};
-
- 
-  /* =========================
-     REVIEW SCROLL
-  ========================= */
-  window.scrollReviews = function (amount) {
-    const slider = document.getElementById("reviewSlider");
-    if (!slider) return;
-
-    slider.scrollBy({ left: amount, behavior: "smooth" });
-  };
-
-  /* =========================
-   REVIEW REEL MODAL
-========================= */
-
-// Open modal
-window.openReviewReel = function(card) {
-  const modal = document.getElementById("reviewModal");
-  const video = document.getElementById("reviewVideo");
-
-  const name = document.getElementById("reviewName");
-  const role = document.getElementById("reviewRole");
-
-  // Get data from clicked card
-  const videoSrc = card.dataset.video;
-  const userName = card.dataset.name;
-  const userRole = card.dataset.role;
-
-  // Set data in modal
-  video.src = "assets/videos/" + videoSrc;
-  name.innerText = userName;
-  role.innerText = userRole;
-
-  // Show modal
-  modal.style.display = "flex";
-
-  // Play video
-  video.play();
-};
-
-
-// Close modal
-window.closeReview = function() {
-  const modal = document.getElementById("reviewModal");
-  const video = document.getElementById("reviewVideo");
-
-  // Stop video
-  video.pause();
-  video.currentTime = 0;
-  video.src = "";
-
-  // Hide modal
-  modal.style.display = "none";
-};
-
-
-// Close on outside click
-window.onclick = function(e) {
-  const modal = document.getElementById("reviewModal");
-
-  if (e.target === modal) {
-    closeReview();
+  if (e.key === 'ArrowRight') {
+    if (document.getElementById('rupModal')    && document.getElementById('rupModal').classList.contains('open'))    rupModalNav(1);
+    if (document.getElementById('rupInfModal') && document.getElementById('rupInfModal').classList.contains('open')) rupInfNav(1);
+    if (document.getElementById('rupRevModal') && document.getElementById('rupRevModal').classList.contains('open')) rupRevNav(1);
   }
-};
-
+  if (e.key === 'ArrowLeft') {
+    if (document.getElementById('rupModal')    && document.getElementById('rupModal').classList.contains('open'))    rupModalNav(-1);
+    if (document.getElementById('rupInfModal') && document.getElementById('rupInfModal').classList.contains('open')) rupInfNav(-1);
+    if (document.getElementById('rupRevModal') && document.getElementById('rupRevModal').classList.contains('open')) rupRevNav(-1);
+  }
+});
 
 /* =========================
-   SCROLL REVIEWS
-========================= */
-window.scrollReviews = function(value) {
-  const slider = document.getElementById("reviewSlider");
-  slider.scrollLeft += value;
-};
-
-
-/* =========================
-   LIKE BUTTON
-========================= */
-window.likeVideo = function(btn) {
-  const countSpan = btn.querySelector("span");
-  let count = parseInt(countSpan.innerText);
-
-  count++;
-  countSpan.innerText = count;
-
-  // simple animation
-  btn.style.transform = "scale(1.2)";
-  setTimeout(() => {
-    btn.style.transform = "scale(1)";
-  }, 200);
-};
-
-  /* =========================
      WHY COUNTER
   ========================= */
   const counters = document.querySelectorAll(".counter");
@@ -696,6 +663,7 @@ let total = 0;
 // Render summary
 (function() {
   const box = document.getElementById('order-items');
+  if (!box) return;
   if (!cart.length) { box.innerHTML = "<p style='color:#888'>Your cart is empty</p>"; return; }
   let html = '';
   cart.forEach(item => {
@@ -710,7 +678,10 @@ let total = 0;
   document.getElementById('order-total').textContent = '₹' + total.toLocaleString('en-IN');
 })();
 
-document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+(function(){
+var _cf = document.getElementById('checkoutForm');
+if (!_cf) return;
+_cf.addEventListener('submit', function(e) {
   e.preventDefault();
 
   if (!cart.length) { showMsg('Your cart is empty!', 'error'); return; }
@@ -744,14 +715,18 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
       const orderId = parts[1] || '';
       localStorage.removeItem('cart');
       if (typeof updateCartCount === 'function') updateCartCount();
-      showMsg('✅ Order placed successfully!' + (orderId ? ' Order #' + orderId : ''), 'success');
-      setTimeout(() => window.location.href = '/proburst/index.php', 2500);
+      showMsg('\u2705 Order placed! Redirecting to your confirmation...', 'success');
+      // Redirect to Order Confirmation page
+      setTimeout(() => {
+        window.location.href = '/proburst/pages/order-confirmation.php?order_id=' + orderId;
+      }, 1200);
     } else {
       const errMap = {
         'error:missing_fields': 'Please fill in all required fields.',
         'error:empty_cart':     'Your cart is empty.',
         'error:db_failed':      'Database error. Please try again.',
-        'error:invalid_json':   'Request error. Please refresh and try again.'
+        'error:invalid_json':   'Request error. Please refresh and try again.',
+        'error:not_logged_in':  'Please log in to place an order.'
       };
       showMsg('❌ ' + (errMap[res.trim()] || 'Something went wrong. Please try again.'), 'error');
       btn.disabled    = false;
@@ -766,6 +741,8 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
   });
 });
 
+})();
+
 function showMsg(msg, type) {
   const el = document.getElementById('checkout-msg');
   el.style.display    = 'block';
@@ -775,5 +752,3 @@ function showMsg(msg, type) {
   el.textContent      = msg;
   el.scrollIntoView({ behavior: 'smooth' });
 }
-
-

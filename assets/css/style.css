@@ -414,7 +414,7 @@ body {
 .hero-slider {
   position: relative;
   overflow: hidden;
-  height: 420px;
+  height: 410px;
   /* MAIN HEIGHT */
   background: #000;
 
@@ -880,553 +880,381 @@ CART AND TOAST
 /* =========================
    VIDEO SECTION
 ========================= */
-.video-section {
-  padding: 60px 5%;
-  background: #f8f8f8;
-}
+/* ══════════════════════════════════════════════════════
+   RIPPED-UP STYLE VIDEO / INFLUENCER / REVIEWS SECTIONS
+══════════════════════════════════════════════════════ */
 
-.section-title {
+/* ── SHARED SECTION WRAPPER ── */
+.rup-video-section,
+.rup-inf-section,
+.rup-rev-section {
+  padding: 70px 5% 60px;
+  position: relative;
+  overflow: hidden;
+}
+.rup-video-section { background: #0a0a0a; }
+.rup-inf-section   { background: #111;    }
+.rup-rev-section   { background: #0a0a0a; }
+
+/* ── SECTION HEADER ── */
+.rup-section-header {
   text-align: center;
-  font-size: 28px;
-  margin-bottom: 30px;
+  margin-bottom: 44px;
 }
-
-/* SLIDER */
-.video-slider {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-}
-
-.video-slider::-webkit-scrollbar {
-  display: none;
-}
-
-/* CARD */
-.video-card {
-  min-width: 250px;
-  height: 420px;
-  border-radius: 15px;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  background: black;
-  transition: 0.3s;
-}
-
-.video-card:hover {
-  transform: scale(1.05);
-}
-
-.video-card video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* PRODUCT OVERLAY */
-.video-product {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  background: white;
-  display: flex;
-  gap: 10px;
-  padding: 8px;
-  border-radius: 8px;
-}
-
-.video-product img {
-  width: 50px;
-  height: 50px;
-}
-
-/* MODAL */
-.reel-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-/* BOX */
-.reel-box {
-  width: 350px;
-  height: 600px;
-  background: black;
-  border-radius: 15px;
-  overflow: hidden;
-  position: relative;
-}
-
-/* CLOSE */
-.close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  color: white;
-  font-size: 28px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-/* SCROLL */
-.reel-container {
-  height: 100%;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-
-  scrollbar-width: none;
-}
-
-.reel-container::-webkit-scrollbar {
-  display: none;
-}
-
-/* REEL */
-.reel {
-  height: 100%;
-  scroll-snap-align: start;
-  position: relative;
-}
-
-.reel video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* OVERLAY */
-.reel-overlay {
-  color: white;
-  position: absolute;
-  bottom: 20px;
-  left: 15px;
-  right: 15px;
-  z-index: 10;
-  /* VERY IMPORTANT */
-}
-
-
-/* REEL BUTTON */
-.reel-overlay button {
-  margin-top: 10px;
-  padding: 8px 14px;
-  background: linear-gradient(45deg, #ff6a00, #ff3c00);
-  border: none;
+.rup-section-title {
+  font-size: clamp(20px, 3vw, 30px);
+  font-weight: 900;
+  letter-spacing: 1px;
   color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
+  text-transform: uppercase;
+  line-height: 1.2;
 }
+.rup-section-title span { color: #ff6a00; }
 
-.reel-overlay button:hover {
-  transform: scale(1.05);
-}
-
-/* MUTE BUTTON */
-.mute-btn {
-  position: absolute;
-  bottom: 80px;
-  right: 15px;
-  right: 15px;
-  z-index: 20;
-  /* ABOVE VIDEO */
-  cursor: pointer;
-}
-
-/* REEL BUTTON */
-.reel-overlay button {
-  margin-top: 10px;
-  padding: 8px 14px;
-  background: linear-gradient(45deg, #ff6a00, #ff3c00);
-  border: none;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.reel-overlay button:hover {
-  transform: scale(1.05);
-}
-
-/* FIX CLICK ISSUE */
-.reel video {
-  pointer-events: none;
-}
-
-
-
-
-/* =========================
-   INFLUENCER SECTION
-========================= */
-
-.influencer-section {
-  padding: 60px 5%;
-  background: #fff;
-}
-
-.influencer-slider {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-}
-
-.influencer-slider::-webkit-scrollbar {
-  display: none;
-}
-
-/* CARD */
-.influencer-card {
-  min-width: 300px;
-  height: 350px;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-}
-
-.influencer-card img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* PLAY BUTTON */
-.play-btn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 40px;
-  color: white;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 10px 15px;
-  border-radius: 50%;
-}
-
-/* INFO */
-.inf-info {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 10px;
-  color: white;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
-}
-
-/* =========================
-   CENTER REEL MODAL
-========================= */
-
-.inf-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.75);
-  /* dark overlay */
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  backdrop-filter: blur(8px);
-}
-
-/* Reel container (main card) */
-.inf-modal .reel-box {
-  position: relative;
-  width: 320px;
-  height: 560px;
-  background: #000;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  animation: scaleUp 0.3s ease;
-}
-
-/* Animation */
-@keyframes scaleUp {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Video */
-.reel-box video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Close button */
-.reel-box .close {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 26px;
-  color: #fff;
-  cursor: pointer;
-  z-index: 10;
-}
-
-/* Top gradient */
-.reel-box::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 100px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
-  z-index: 1;
-}
-
-/* Bottom gradient */
-.reel-box::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 120px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-  z-index: 1;
-}
-
-/* Right side icons */
-.reel-actions {
-  position: absolute;
-  right: 10px;
-  bottom: 80px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  z-index: 2;
-}
-
-.reel-actions i {
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.reel-actions i:hover {
-  transform: scale(1.2);
-}
-
-/* =========================
-   REVIEWS SECTION
-========================= */
-
-.reviews-section {
-  padding: 60px 5%;
-  background: #f8f8f8;
-}
-
-.section-title {
-  text-align: center;
-  font-size: 30px;
-  margin-bottom: 40px;
-}
-
-/* WRAPPER */
-.reviews-wrapper {
-  position: relative;
-}
-
-/* SLIDER */
-.reviews-slider {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  padding: 10px 40px;
-}
-
-.reviews-slider::-webkit-scrollbar {
-  display: none;
-}
-
-/* CARD */
-.review-card {
-  min-width: 260px;
-  height: 420px;
-  border-radius: 15px;
-  overflow: hidden;
-  position: relative;
-  flex-shrink: 0;
-  cursor: pointer;
-  background: black;
-  transition: 0.3s;
-}
-
-.review-card:hover {
-  transform: scale(1.05);
-}
-
-/* VIDEO */
-.review-card video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* TOP TEXT */
-.review-overlay.top {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  padding: 15px;
-  color: white;
-  font-weight: bold;
-  background: linear-gradient(to bottom, rgba(255, 0, 0, 0.9), transparent);
-  font-size: 14px;
-}
-
-/* BOTTOM TEXT */
-.review-overlay.bottom {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  padding: 15px;
-  color: white;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
-}
-
-.review-overlay.bottom h4 {
-  margin: 0;
-  font-size: 14px;
-}
-
-.review-overlay.bottom p {
-  margin: 3px 0 0;
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-/* SCROLL BUTTONS */
-.review-btn {
+/* ── SHARED ARROW BUTTONS ── */
+.rup-arrow {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  font-size: 22px;
-  cursor: pointer;
-  z-index: 5;
+  width: 44px; height: 44px;
   border-radius: 50%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255,255,255,.25);
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, border-color .2s;
+  backdrop-filter: blur(6px);
 }
+.rup-arrow:hover { background: #ff6a00; border-color: #ff6a00; }
+.rup-arrow-left  { left: 16px; }
+.rup-arrow-right { right: 16px; }
 
-.review-btn.left {
-  left: 0;
+
+/* ══════════════════════════
+   VIDEO CARDS
+══════════════════════════ */
+.rup-video-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0 4px 16px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
+.rup-video-track::-webkit-scrollbar { display: none; }
 
-.review-btn.right {
-  right: 0;
-}
-
-.review-btn:hover {
-  background: black;
-  color: white;
-}
-
-
-/* ============ MODAL ================== */
-
-/* VERIFIED BADGE */
-.verified {
-  color: #00c853;
-  font-size: 14px;
-  margin-left: 5px;
-}
-
-/* MODAL */
-.review-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.review-box {
-  width: 350px;
-  height: 600px;
-  background: black;
-  border-radius: 15px;
+.rup-video-card {
+  flex-shrink: 0;
+  width: 280px;
+  height: 460px;
+  border-radius: 18px;
   overflow: hidden;
   position: relative;
-}
-
-/* VIDEO */
-.review-box video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* INFO */
-.review-info {
-  position: absolute;
-  bottom: 20px;
-  left: 15px;
-  color: white;
-}
-
-/* LIKE BUTTON */
-.like-btn {
-  margin-top: 10px;
   cursor: pointer;
-  font-size: 18px;
-  user-select: none;
-  transition: 0.3s;
+  background: #111;
+  transition: transform .28s, box-shadow .28s;
+}
+.rup-video-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 50px rgba(255,106,0,.25);
 }
 
-.like-btn.active {
-  color: red;
-  transform: scale(1.2);
+.rup-card-video {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.rup-card-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.1) 55%, transparent 100%);
+  pointer-events: none;
 }
 
-/* DOUBLE TAP HEART */
-.heart {
+/* Play circle overlay */
+.rup-play-circle {
   position: absolute;
-  font-size: 80px;
-  color: red;
-  opacity: 0;
-  animation: pop 0.6s ease;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -60%);
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.18);
+  border: 2px solid rgba(255,255,255,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #fff;
+  backdrop-filter: blur(4px);
+  transition: background .2s, transform .2s;
+  cursor: pointer;
+}
+.rup-video-card:hover .rup-play-circle { background: rgba(255,106,0,.7); transform: translate(-50%,-60%) scale(1.1); }
+
+/* Product chip at bottom */
+.rup-product-chip {
+  position: absolute;
+  bottom: 14px; left: 12px; right: 12px;
+  background: rgba(255,255,255,.96);
+  border-radius: 12px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background .2s;
+  backdrop-filter: blur(6px);
+}
+.rup-product-chip:hover { background: #fff; }
+.rup-product-chip img {
+  width: 46px; height: 46px;
+  object-fit: contain; border-radius: 8px; flex-shrink: 0;
+}
+.rup-chip-info { flex: 1; min-width: 0; }
+.rup-chip-name {
+  font-size: 12px; font-weight: 700; color: #111;
+  display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rup-chip-prices {
+  font-size: 13px; font-weight: 800; color: #ff6a00; margin-top: 2px; display: block;
+}
+.rup-chip-prices s { color: #aaa; font-weight: 400; margin-left: 5px; font-size: 11px; }
+
+
+/* ══════════════════════════
+   VIDEO MODAL (full-screen reel)
+══════════════════════════ */
+.rup-modal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 9999;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(10px);
+}
+.rup-modal.open { display: flex; }
+.rup-modal-inner {
+  position: relative;
+  width: min(360px, 92vw);
+  height: min(640px, 90vh);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 32px 80px rgba(0,0,0,.7);
+  animation: rupPop .3s cubic-bezier(.18,.89,.32,1.28) both;
+}
+@keyframes rupPop { from{transform:scale(.88);opacity:0} to{transform:scale(1);opacity:1} }
+.rup-modal-video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
 }
 
-@keyframes pop {
-  0% {
-    transform: scale(0);
-    opacity: 1;
-  }
+/* Top bar */
+.rup-modal-topbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(0,0,0,.7), transparent);
+  z-index: 5;
+}
+.rup-modal-counter { color: #fff; font-size: 13px; font-weight: 600; }
+.rup-modal-close {
+  background: rgba(255,255,255,.18); border: none;
+  width: 32px; height: 32px; border-radius: 50%;
+  color: #fff; font-size: 20px; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.rup-modal-close:hover { background: rgba(255,106,0,.8); }
 
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
+/* Bottom product bar */
+.rup-modal-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0,0,0,.9) 60%, transparent);
+  display: flex; align-items: center; gap: 12px;
+  z-index: 5;
+}
+.rup-modal-pimg {
+  width: 52px; height: 52px;
+  object-fit: contain; border-radius: 10px;
+  background: rgba(255,255,255,.1); padding: 4px; flex-shrink: 0;
+}
+.rup-modal-pinfo { flex: 1; min-width: 0; }
+.rup-modal-pname  { font-size: 13px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rup-modal-pprice { font-size: 14px; font-weight: 800; color: #ff6a00; margin-top: 3px; }
+.rup-modal-cart-btn {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  background: #ff6a00; color: #fff;
+  border: none; border-radius: 10px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.rup-modal-cart-btn:hover { background: #e05500; }
+
+/* Prev / next inside modal */
+.rup-modal-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(0,0,0,.5);
+  color: #fff; font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 6; transition: background .2s;
+}
+.rup-modal-nav:hover { background: #ff6a00; }
+.rup-modal-prev { left: 10px; }
+.rup-modal-next { right: 10px; }
+
+
+/* ══════════════════════════
+   INFLUENCER CARDS
+══════════════════════════ */
+.rup-inf-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0 4px 16px;
+  scrollbar-width: none;
+}
+.rup-inf-track::-webkit-scrollbar { display: none; }
+
+.rup-inf-card {
+  flex-shrink: 0;
+  width: 260px; height: 400px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  background: #222;
+  transition: transform .28s, box-shadow .28s;
+}
+.rup-inf-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 50px rgba(255,106,0,.2); }
+.rup-inf-card > img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+.rup-inf-card:hover > img { transform: scale(1.04); }
+.rup-inf-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.8) 0%, transparent 60%);
+}
+.rup-inf-play {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 56px; height: 56px; border-radius: 50%;
+  background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #fff;
+  transition: background .2s, transform .2s;
+}
+.rup-inf-card:hover .rup-inf-play { background: rgba(255,106,0,.8); transform: translate(-50%,-50%) scale(1.1); }
+.rup-inf-name {
+  position: absolute; bottom: 16px; left: 14px; right: 14px;
+  color: #fff; font-weight: 700; font-size: 14px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.8);
 }
 
-/* =========================
-   WHY CHOOSE US
-========================= */
+/* Influencer modal */
+.rup-inf-modal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 9999;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(10px);
+}
+.rup-inf-modal.open { display: flex; }
+.rup-inf-modal-inner {
+  position: relative;
+  width: min(360px, 92vw);
+  height: min(640px, 90vh);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 32px 80px rgba(0,0,0,.7);
+  animation: rupPop .3s cubic-bezier(.18,.89,.32,1.28) both;
+}
+.rup-inf-modal-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rup-inf-modal-topbar {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: linear-gradient(to bottom, rgba(0,0,0,.75), transparent);
+  z-index: 5;
+}
+.rup-inf-modal-name { color: #fff; font-size: 14px; font-weight: 700; }
+
+/* Review modal */
+.rup-rev-modal {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 9999;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(10px);
+}
+.rup-rev-modal.open { display: flex; }
+
+
+/* ══════════════════════════
+   REVIEW CARDS
+══════════════════════════ */
+.rup-rev-track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0 4px 16px;
+  scrollbar-width: none;
+}
+.rup-rev-track::-webkit-scrollbar { display: none; }
+
+.rup-rev-card {
+  flex-shrink: 0;
+  width: 260px; height: 420px;
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  background: #111;
+  transition: transform .28s, box-shadow .28s;
+}
+.rup-rev-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 50px rgba(255,106,0,.2); }
+.rup-rev-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rup-rev-top-label {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 14px 12px;
+  font-size: 13px; font-weight: 700; color: #fff;
+  background: linear-gradient(to bottom, rgba(200,30,0,.85), transparent);
+  line-height: 1.4;
+}
+.rup-rev-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 14px 12px;
+  background: linear-gradient(to top, rgba(0,0,0,.85), transparent);
+}
+.rup-rev-name { font-size: 14px; font-weight: 700; color: #fff; }
+.rup-rev-role { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 3px; }
+.rup-verified { color: #00e676; font-size: 13px; margin-left: 5px; }
+
+
+/* ══════════════════════════
+   RESPONSIVE
+══════════════════════════ */
+@media (max-width: 768px) {
+  .rup-video-section,
+  .rup-inf-section,
+  .rup-rev-section  { padding: 50px 4% 40px; }
+  .rup-video-card   { width: 240px; height: 400px; }
+  .rup-inf-card     { width: 220px; height: 340px; }
+  .rup-rev-card     { width: 220px; height: 360px; }
+  .rup-arrow        { width: 36px; height: 36px; font-size: 15px; }
+}
+@media (max-width: 480px) {
+  .rup-section-title { font-size: 18px; }
+  .rup-video-card   { width: 210px; height: 360px; }
+  .rup-arrow-left  { left: 6px; }
+  .rup-arrow-right { right: 6px; }
+}
+
 .why-pro-section {
   padding: 100px 5%;
   color: white;

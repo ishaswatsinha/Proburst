@@ -195,6 +195,7 @@ $result = $conn->query($sql);
 
       <p class="price">₹<?php echo number_format($row['price']); ?></p>
 
+      <?php if ($row['stock'] > 0): ?>
       <button onclick="addToCart(
         <?php echo $row['id']; ?>,
         '<?php echo $row['name']; ?>',
@@ -204,6 +205,11 @@ $result = $conn->query($sql);
       )">
         Add to Cart
       </button>
+      <?php else: ?>
+      <button disabled style="width:100%;padding:10px;background:#f0f0f0;color:#999;border:1px dashed #ccc;border-radius:6px;font-size:13px;cursor:not-allowed;">
+        Out of Stock
+      </button>
+      <?php endif; ?>
 
     </div>
 

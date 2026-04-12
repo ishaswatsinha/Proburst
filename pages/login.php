@@ -8,6 +8,11 @@ require_once '../includes/auth.php';
 
 if (isLoggedIn()) { header('Location: /proburst/index.php'); exit; }
 
+// Capture ?redirect= param and store in session so it survives the POST
+if (!empty($_GET['redirect'])) {
+    $_SESSION['redirect_after_login'] = $_GET['redirect'];
+}
+
 $errors = [];
 $old    = ['email' => ''];
 
@@ -92,7 +97,7 @@ $flash = getFlash();
                 <label>Password</label>
                 <input type="password" name="password" placeholder="Your password" required>
             </div>
-            <div class="forgot"><a href="#">Forgot password?</a></div>
+            <div class="forgot"><a href="forgot-password.php">Forgot password?</a></div>
             <button type="submit" class="btn-auth">LOGIN →</button>
         </form>
 

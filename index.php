@@ -44,8 +44,8 @@ $topSellers = $conn->query("
     <div class="slide"><img src="assets/images/banners/banner2.jpeg" alt="Proburst"></div>
     <div class="slide"><img src="assets/images/banners/banner3.jpeg" alt="Proburst"></div>
     <div class="slide"><img src="assets/images/banners/banner4.jpeg" alt="Proburst"></div>
-    <div class="slide"><img src="assets/images/banners/banner5.jpeg" alt="Proburst"></div>
-    <div class="slide"><img src="assets/images/banners/banner6.jpeg" alt="Proburst"></div>
+    <!-- <div class="slide"><img src="assets/images/banners/banner5.jpeg" alt="Proburst"></div>
+    <div class="slide"><img src="assets/images/banners/banner6.jpeg" alt="Proburst"></div> -->
   </div>
   <button class="arrow prev">&#10094;</button>
   <button class="arrow next">&#10095;</button>
@@ -488,87 +488,171 @@ function tsQuickAdd(btn, e) {
 
 
 <!-- ═══════════════════════════════════════════
-     VIDEO SECTION
+     SHOP OUR MOST LOVED PRODUCTS — RIPPED-UP STYLE
 ═══════════════════════════════════════════ -->
 <?php
-$videos = $conn->query("SELECT videos.*, products.id as pid, products.name, products.price, products.image FROM videos JOIN products ON videos.product_id = products.id");
+$videos = $conn->query("SELECT videos.*, products.id as pid, products.name, products.price, products.image, products.mrp, products.discount_percent FROM videos LEFT JOIN products ON videos.product_id = products.id WHERE products.id IS NOT NULL");
+$videoRows = [];
+while($v = $videos->fetch_assoc()) $videoRows[] = $v;
 ?>
-<section class="video-section">
-  <h2 class="section-title">Shop Our Most Loved Products</h2>
-  <div class="video-slider">
-    <?php while($v = $videos->fetch_assoc()): ?>
-    <div class="video-card"
-      data-id="<?php echo $v['pid']; ?>"
-      data-video="<?php echo $v['video']; ?>"
-      data-name="<?php echo htmlspecialchars($v['name']); ?>"
-      data-price="<?php echo $v['price']; ?>"
-      data-image="<?php echo $v['image']; ?>"
-      onclick="openReel(this)">
-      <video muted loop autoplay><source src="assets/videos/<?php echo $v['video']; ?>" type="video/mp4"></video>
-      <div class="video-product">
-        <img src="assets/images/<?php echo $v['image']; ?>">
-        <div><p><?php echo $v['name']; ?></p><span>&#8377;<?php echo $v['price']; ?></span></div>
-      </div>
-    </div>
-    <?php endwhile; ?>
+<section class="rup-video-section">
+  <div class="rup-section-header">
+    <h2 class="rup-section-title">WHY THOUSANDS ARE SWITCHING TO <span>PROBURST</span></h2>
   </div>
-</section>
 
-
-<!-- ═══════════════════════════════════════════
-     INFLUENCER SECTION
-═══════════════════════════════════════════ -->
-<?php $inf = $conn->query("SELECT * FROM influencers"); ?>
-<section class="influencer-section">
-  <h2 class="section-title">Let Influencers Talk</h2>
-  <div class="influencer-slider">
-    <?php while($i = $inf->fetch_assoc()): ?>
-    <div class="influencer-card" onclick="openInfluencer('assets/videos/<?php echo $i['video']; ?>')">
-      <img src="assets/images/<?php echo $i['thumbnail']; ?>" alt="<?php echo htmlspecialchars($i['name']); ?>">
-      <div class="play-btn">&#9654;</div>
-      <div class="inf-info"><h4><?php echo htmlspecialchars($i['name']); ?></h4></div>
-    </div>
-    <?php endwhile; ?>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════════
-     REVIEW SECTION
-═══════════════════════════════════════════ -->
-<?php $reviews = $conn->query("SELECT * FROM reviews"); ?>
-<section class="reviews-section">
-  <h2 class="section-title">Real People. Real Reviews &#10084;&#65039;</h2>
-  <div class="reviews-wrapper">
-    <button class="review-btn left" onclick="scrollReviews(-300)">&#8249;</button>
-    <div class="reviews-slider" id="reviewSlider">
-      <?php while($r = $reviews->fetch_assoc()): ?>
-      <div class="review-card"
-        data-video="<?php echo $r['video']; ?>"
-        data-name="<?php echo $r['name']; ?>"
-        data-role="<?php echo $r['role']; ?>"
-        data-title="<?php echo $r['title']; ?>"
-        onclick="openReviewReel(this)">
-        <video muted autoplay loop><source src="assets/videos/<?php echo $r['video']; ?>"></video>
-        <div class="review-overlay top"><?php echo $r['title']; ?></div>
-        <div class="review-overlay bottom">
-          <h4><?php echo $r['name']; ?><?php if($r['verified']): ?><span class="verified">&#10004;</span><?php endif; ?></h4>
-          <p><?php echo $r['role']; ?></p>
+  <!-- CARDS ROW -->
+  <div class="rup-video-track" id="rupVideoTrack">
+    <?php foreach($videoRows as $idx => $v):
+      $disc = !empty($v['discount_percent']) ? (int)$v['discount_percent'] : 0;
+      $mrp  = !empty($v['mrp']) ? (float)$v['mrp'] : ($disc > 0 ? round($v['price'] * 100 / (100 - $disc)) : 0);
+    ?>
+    <div class="rup-video-card" data-index="<?= $idx ?>">
+      <!-- video plays silently in background -->
+      <video class="rup-card-video" muted loop autoplay playsinline>
+        <source src="assets/videos/<?= htmlspecialchars($v['video']) ?>" type="video/mp4">
+      </video>
+      <!-- dark gradient at bottom -->
+      <div class="rup-card-gradient"></div>
+      <!-- play icon overlay -->
+      <div class="rup-play-circle" onclick="rupOpenModal(<?= $idx ?>)">&#9654;</div>
+      <!-- product chip at bottom -->
+      <div class="rup-product-chip" onclick="rupOpenModal(<?= $idx ?>)">
+        <img src="assets/images/<?= htmlspecialchars($v['image']) ?>" alt="<?= htmlspecialchars($v['name']) ?>">
+        <div class="rup-chip-info">
+          <span class="rup-chip-name"><?= htmlspecialchars($v['name']) ?></span>
+          <span class="rup-chip-prices">
+            <strong>&#8377;<?= number_format($v['price']) ?></strong>
+            <?php if($mrp > $v['price']): ?>
+              <s>&#8377;<?= number_format($mrp) ?></s>
+            <?php endif; ?>
+          </span>
         </div>
       </div>
-      <?php endwhile; ?>
     </div>
-    <button class="review-btn right" onclick="scrollReviews(300)">&#8250;</button>
+    <?php endforeach; ?>
   </div>
+
+  <!-- PREV/NEXT ARROWS -->
+  <button class="rup-arrow rup-arrow-left"  onclick="rupScroll(-1)">&#10094;</button>
+  <button class="rup-arrow rup-arrow-right" onclick="rupScroll(1)">&#10095;</button>
 </section>
-<div class="review-modal" id="reviewModal">
-  <div class="review-box">
-    <span class="close" onclick="closeReview()">&#215;</span>
-    <video id="reviewVideo" controls autoplay></video>
-    <div class="review-info">
-      <h3 id="reviewName"></h3><p id="reviewRole"></p>
-      <div class="like-btn" onclick="likeVideo(this)">&#10084;&#65039; <span>0</span></div>
+
+<!-- RUP VIDEO MODAL (full-screen reel style) -->
+<div class="rup-modal" id="rupModal">
+  <div class="rup-modal-inner">
+    <!-- Video -->
+    <video class="rup-modal-video" id="rupModalVideo" controls autoplay playsinline loop></video>
+    <!-- Top bar -->
+    <div class="rup-modal-topbar">
+      <span class="rup-modal-counter" id="rupModalCounter">1 / <?= count($videoRows) ?></span>
+      <button class="rup-modal-close" onclick="rupCloseModal()">&#215;</button>
     </div>
+    <!-- Bottom product bar -->
+    <div class="rup-modal-bottom" id="rupModalBottom">
+      <img class="rup-modal-pimg" id="rupModalPImg" src="" alt="">
+      <div class="rup-modal-pinfo">
+        <div class="rup-modal-pname"  id="rupModalPName"></div>
+        <div class="rup-modal-pprice" id="rupModalPPrice"></div>
+      </div>
+      <button class="rup-modal-cart-btn" id="rupModalCartBtn">Add to Cart</button>
+    </div>
+    <!-- Prev/Next inside modal -->
+    <button class="rup-modal-nav rup-modal-prev" onclick="rupModalNav(-1)">&#10094;</button>
+    <button class="rup-modal-nav rup-modal-next" onclick="rupModalNav(1)">&#10095;</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     LET INFLUENCERS TALK — RIPPED-UP STYLE
+═══════════════════════════════════════════ -->
+<?php $inf = $conn->query("SELECT * FROM influencers"); $infRows = []; while($i=$inf->fetch_assoc()) $infRows[] = $i; ?>
+<section class="rup-inf-section">
+  <div class="rup-section-header">
+    <h2 class="rup-section-title">LET <span>INFLUENCERS</span> TALK</h2>
+  </div>
+
+  <div class="rup-inf-track" id="rupInfTrack">
+    <?php foreach($infRows as $ii => $inf): ?>
+    <div class="rup-inf-card" onclick="rupOpenInf(<?= $ii ?>)" data-video="assets/videos/<?= htmlspecialchars($inf['video']) ?>">
+      <img src="assets/images/<?= htmlspecialchars($inf['thumbnail']) ?>"
+           alt="<?= htmlspecialchars($inf['name']) ?>">
+      <div class="rup-inf-gradient"></div>
+      <div class="rup-inf-play">&#9654;</div>
+      <div class="rup-inf-name"><?= htmlspecialchars($inf['name']) ?></div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+
+  <button class="rup-arrow rup-arrow-left"  onclick="rupInfScroll(-1)">&#10094;</button>
+  <button class="rup-arrow rup-arrow-right" onclick="rupInfScroll(1)">&#10095;</button>
+</section>
+
+<!-- INFLUENCER MODAL -->
+<div class="rup-inf-modal" id="rupInfModal">
+  <div class="rup-inf-modal-inner">
+    <video id="rupInfVideo" controls autoplay playsinline loop class="rup-inf-modal-video"></video>
+    <div class="rup-inf-modal-topbar">
+      <span id="rupInfName" class="rup-inf-modal-name"></span>
+      <button class="rup-modal-close" onclick="rupCloseInf()">&#215;</button>
+    </div>
+    <button class="rup-modal-nav rup-modal-prev" onclick="rupInfNav(-1)">&#10094;</button>
+    <button class="rup-modal-nav rup-modal-next" onclick="rupInfNav(1)">&#10095;</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     REAL PEOPLE. REAL REVIEWS — RIPPED-UP STYLE
+═══════════════════════════════════════════ -->
+<?php $revs = $conn->query("SELECT * FROM reviews"); $revRows = []; while($r=$revs->fetch_assoc()) $revRows[] = $r; ?>
+<section class="rup-rev-section">
+  <div class="rup-section-header">
+    <h2 class="rup-section-title">REAL PEOPLE. <span>REAL REVIEWS</span> &#10084;&#65039;</h2>
+  </div>
+
+  <div class="rup-rev-track" id="rupRevTrack">
+    <?php foreach($revRows as $ri => $rv): ?>
+    <div class="rup-rev-card" onclick="rupOpenRev(<?= $ri ?>)"
+         data-video="assets/videos/<?= htmlspecialchars($rv['video']) ?>"
+         data-name="<?= htmlspecialchars($rv['name']) ?>"
+         data-role="<?= htmlspecialchars($rv['role']) ?>">
+      <video class="rup-rev-video" muted loop autoplay playsinline>
+        <source src="assets/videos/<?= htmlspecialchars($rv['video']) ?>" type="video/mp4">
+      </video>
+      <div class="rup-card-gradient"></div>
+      <div class="rup-play-circle">&#9654;</div>
+      <!-- top title -->
+      <div class="rup-rev-top-label"><?= htmlspecialchars($rv['title']) ?></div>
+      <!-- bottom reviewer info -->
+      <div class="rup-rev-bottom">
+        <div class="rup-rev-name">
+          <?= htmlspecialchars($rv['name']) ?>
+          <?php if($rv['verified']): ?><span class="rup-verified">&#10004;</span><?php endif; ?>
+        </div>
+        <div class="rup-rev-role"><?= htmlspecialchars($rv['role']) ?></div>
+      </div>
+    </div>
+    <?php endforeach; ?>
+  </div>
+
+  <button class="rup-arrow rup-arrow-left"  onclick="rupRevScroll(-1)">&#10094;</button>
+  <button class="rup-arrow rup-arrow-right" onclick="rupRevScroll(1)">&#10095;</button>
+</section>
+
+<!-- REVIEW MODAL -->
+<div class="rup-rev-modal" id="rupRevModal">
+  <div class="rup-inf-modal-inner">
+    <video id="rupRevVideo" controls autoplay playsinline loop class="rup-inf-modal-video"></video>
+    <div class="rup-inf-modal-topbar">
+      <div>
+        <div class="rup-inf-modal-name" id="rupRevModalName"></div>
+        <div style="font-size:12px;color:#ccc;margin-top:2px;" id="rupRevModalRole"></div>
+      </div>
+      <button class="rup-modal-close" onclick="rupCloseRev()">&#215;</button>
+    </div>
+    <button class="rup-modal-nav rup-modal-prev" onclick="rupRevNav(-1)">&#10094;</button>
+    <button class="rup-modal-nav rup-modal-next" onclick="rupRevNav(1)">&#10095;</button>
   </div>
 </div>
 

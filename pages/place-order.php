@@ -1,11 +1,17 @@
 <?php
-// Returns plain "success" text — matches what checkout.php JS expects
+// pages/place-order.php
+// Receives JSON cart data, saves order + items to DB,
+// decrements product stock, returns "success:ORDER_ID" or "error:reason"
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../includes/auth.php';
 require_once '../config/database.php';
 
-// No Content-Type header here — keep as text/html so res.text() works
+// ── MUST BE LOGGED IN ──
+if (!isLoggedIn()) {
+    echo 'error:not_logged_in';
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -13,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$raw = file_get_contents('php://input');
+$raw  = file_get_contents('php://input');
 $data = json_decode($raw, true);
 
 if (!$data) {
@@ -39,9 +45,9 @@ if (empty($cart)) {
     exit;
 }
 
-$user_id = isLoggedIn() ? (int)$_SESSION['user_id'] : null;
+$user_id = (int)$_SESSION['user_id'];
 
-// ✅ Prepared statement — SQL injection safe
+// ── INSERT ORDER ──
 $stmt = $conn->prepare(
     "INSERT INTO orders (user_id, name, phone, email, address, city, pincode, total, status, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())"
@@ -57,19 +63,33 @@ if (!$stmt->execute()) {
 $order_id = $conn->insert_id;
 $stmt->close();
 
-// Insert order items
-$itemStmt = $conn->prepare(
+// ── INSERT ORDER ITEMS + DECREMENT STOCK ──
+$itemStmt  = $conn->prepare(
     "INSERT INTO order_items (order_id, product_id, qty, price) VALUES (?, ?, ?, ?)"
 );
+// GREATEST(0, stock - qty) ensures stock never goes negative
+$stockStmt = $conn->prepare(
+    "UPDATE products SET stock = GREATEST(0, stock - ?) WHERE id = ?"
+);
+
 foreach ($cart as $item) {
     $pid   = (int)($item['id']    ?? 0);
     $qty   = (int)($item['qty']   ?? 1);
     $price = (float)($item['price'] ?? 0);
+
     if ($pid <= 0 || $qty <= 0) continue;
+
+    // Save order item row
     $itemStmt->bind_param('iiid', $order_id, $pid, $qty, $price);
     $itemStmt->execute();
-}
-$itemStmt->close();
 
-// Return plain "success" — checkout.js checks res.includes("success")
+    // Decrement this product's stock
+    $stockStmt->bind_param('ii', $qty, $pid);
+    $stockStmt->execute();
+}
+
+$itemStmt->close();
+$stockStmt->close();
+
+// Return success + order ID so JS redirects to confirmation page
 echo 'success:' . $order_id;

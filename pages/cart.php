@@ -8,7 +8,7 @@
   <div id="cart-container"></div>
 
   <div class="cart-total-box">
-    Total: ₹<span id="cart-total">0</span>
+    Total: <span id="cart-total">₹0</span>
   </div>
 
   <button onclick="checkout()" class="cart-checkout-btn">
@@ -20,6 +20,14 @@
 <?php include '../includes/footer.php'; ?>
 
 <script>
+
+/* =========================
+   HELPERS
+========================= */
+function fmtPrice(n) {
+  // Always parse as float first — localStorage stores strings
+  return '₹' + parseFloat(n).toLocaleString('en-IN');
+}
 
 /* =========================
    LOAD CART
@@ -36,7 +44,7 @@ function saveCart(cart) {
 }
 
 /* =========================
-   RENDER INITIAL
+   RENDER FULL CART
 ========================= */
 function renderCart() {
 
@@ -45,20 +53,24 @@ function renderCart() {
 
   if (cart.length === 0) {
     container.innerHTML = "<p class='cart-empty'>Your cart is empty</p>";
+    document.getElementById("cart-total").textContent = "₹0";
     return;
   }
 
   let html = "";
 
   cart.forEach(item => {
+    const price    = parseFloat(item.price);
+    const subtotal = price * item.qty;
+
     html += `
-      <div class="cart-item" data-id="${item.id}">
+      <div class="cart-item" data-id="${item.id}" data-price="${price}">
 
         <img src="../assets/images/${item.image}" class="cart-img">
 
         <div class="cart-details">
           <h3>${item.name}</h3>
-          <p>₹${item.price}</p>
+          <p>${fmtPrice(price)}</p>
 
           <div class="cart-qty">
             <button onclick="changeQty(${item.id}, -1)">−</button>
@@ -68,7 +80,7 @@ function renderCart() {
         </div>
 
         <div class="cart-actions">
-          <p class="subtotal">₹${item.price * item.qty}</p>
+          <p class="subtotal">${fmtPrice(subtotal)}</p>
           <button class="cart-remove" onclick="removeItem(${item.id})">Remove</button>
         </div>
 
@@ -77,81 +89,96 @@ function renderCart() {
   });
 
   container.innerHTML = html;
-
   updateTotal();
 }
 
 /* =========================
-   UPDATE TOTAL ONLY
+   UPDATE TOTAL — live, no refresh needed
 ========================= */
 function updateTotal() {
-
-  let cart = getCart();
+  let cart  = getCart();
   let total = 0;
-
-  cart.forEach(item => total += item.price * item.qty);
-
-  document.getElementById("cart-total").innerText = total;
+  cart.forEach(item => {
+    total += parseFloat(item.price) * parseInt(item.qty);
+  });
+  document.getElementById("cart-total").textContent = fmtPrice(total);
 }
 
 /* =========================
-   CHANGE QTY (AJAX STYLE)
+   CHANGE QTY — updates DOM live
 ========================= */
 function changeQty(id, change) {
 
   let cart = getCart();
 
   cart = cart.map(item => {
-
     if (item.id == id) {
-      item.qty += change;
-
+      item.qty = parseInt(item.qty) + change;
       if (item.qty <= 0) return null;
     }
-
     return item;
   }).filter(i => i !== null);
 
   saveCart(cart);
 
-  // 🔥 UPDATE ONLY THIS ITEM
   let item = cart.find(i => i.id == id);
   let card = document.querySelector(`.cart-item[data-id="${id}"]`);
 
   if (!item && card) {
-    card.remove();
+    // Item removed — animate out then remove
+    card.style.transition = "opacity .25s, transform .25s";
+    card.style.opacity    = "0";
+    card.style.transform  = "translateX(-10px)";
+    setTimeout(() => {
+      card.remove();
+      if (getCart().length === 0) {
+        document.getElementById("cart-container").innerHTML =
+          "<p class='cart-empty'>Your cart is empty</p>";
+        document.getElementById("cart-total").textContent = "₹0";
+      }
+    }, 250);
   } else if (item && card) {
-    card.querySelector(".qty").innerText = item.qty;
-    card.querySelector(".subtotal").innerText = "₹" + (item.qty * item.price);
+    // Update qty display
+    card.querySelector(".qty").textContent = item.qty;
+    // Update subtotal live — parse price from data attribute
+    const price = parseFloat(card.dataset.price);
+    card.querySelector(".subtotal").textContent = fmtPrice(price * item.qty);
   }
 
   updateCartCount();
+  // Update grand total live — no refresh needed
   updateTotal();
 }
 
 /* =========================
-   REMOVE ITEM (AJAX STYLE)
+   REMOVE ITEM
 ========================= */
 function removeItem(id) {
 
   let cart = getCart().filter(item => item.id != id);
-
   saveCart(cart);
 
-  // 🔥 REMOVE ONLY THIS ITEM
-  document.querySelector(`.cart-item[data-id="${id}"]`)?.remove();
+  let card = document.querySelector(`.cart-item[data-id="${id}"]`);
+  if (card) {
+    card.style.transition = "opacity .25s, transform .25s";
+    card.style.opacity    = "0";
+    card.style.transform  = "translateX(-10px)";
+    setTimeout(() => {
+      card.remove();
+      updateTotal();
+      if (getCart().length === 0) {
+        document.getElementById("cart-container").innerHTML =
+          "<p class='cart-empty'>Your cart is empty</p>";
+        document.getElementById("cart-total").textContent = "₹0";
+      }
+    }, 250);
+  }
 
   updateCartCount();
-  updateTotal();
-
-  if (cart.length === 0) {
-    document.getElementById("cart-container").innerHTML =
-      "<p class='cart-empty'>Your cart is empty</p>";
-  }
 }
 
 /* =========================
-   CHECKOUT
+   CHECKOUT — checks login first
 ========================= */
 function checkout() {
 
@@ -162,7 +189,20 @@ function checkout() {
     return;
   }
 
-  window.location.href = "checkout.php";
+  // Check login status via AJAX — redirect to login if not logged in
+  fetch("/proburst/ajax/check-login.php")
+    .then(r => r.json())
+    .then(data => {
+      if (data.loggedIn) {
+        window.location.href = "checkout.php";
+      } else {
+        window.location.href = "/proburst/pages/login.php?redirect=/proburst/pages/checkout.php";
+      }
+    })
+    .catch(() => {
+      // Fallback — server will guard checkout anyway
+      window.location.href = "checkout.php";
+    });
 }
 
 /* INIT */

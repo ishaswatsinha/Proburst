@@ -180,6 +180,17 @@ if ($totalReviews > 0) {
 .pdp-btn-cart:hover { background:#e05500; transform:translateY(-2px); }
 .pdp-btn-buy  { flex:1; min-width:160px; padding:15px 20px; background:#111; color:#fff; border:none; border-radius:10px; font-size:16px; font-weight:700; cursor:pointer; transition:background .2s,transform .2s; }
 .pdp-btn-buy:hover { background:#333; transform:translateY(-2px); }
+
+.pdp-btn-notify {
+  flex:1; min-width:200px; padding:15px 20px;
+  background:#f5f5f5; color:#555;
+  border:2px dashed #ccc; border-radius:10px;
+  font-size:15px; font-weight:700; cursor:pointer;
+  transition:all .2s; text-align:center;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.pdp-btn-notify:hover { background:#fff3cd; border-color:#f4a000; color:#b45309; }
+.pdp-btn-notify.subscribed { background:#e6f7ed; border-color:#22c55e; color:#15803d; cursor:default; }
 .pdp-trust { display:flex; gap:20px; padding:16px 0; border-top:1px solid #f0f0f0; border-bottom:1px solid #f0f0f0; margin-bottom:24px; flex-wrap:wrap; }
 .pdp-trust-item { display:flex; align-items:center; gap:8px; font-size:13px; color:#444; font-weight:500; }
 .pdp-trust-item i { color:#ff6a00; font-size:18px; }
@@ -497,6 +508,28 @@ if ($totalReviews > 0) {
 .pdp-rel-card button { background:#111; color:#fff; border:none; padding:9px 16px; border-radius:6px; font-size:13px; cursor:pointer; transition:background .2s; width:100%; }
 .pdp-rel-card button:hover { background:#ff6a00; }
 
+/* ── NOTIFY ME ── */
+function subscribeNotify(btn, productId) {
+  if (btn.classList.contains('subscribed')) return;
+  btn.textContent = '✅ You will be notified!';
+  btn.classList.add('subscribed');
+  btn.disabled = true;
+  // Store in localStorage so it persists across page refreshes
+  const key = 'notify_' + productId;
+  localStorage.setItem(key, '1');
+}
+// On page load — restore subscribed state if user already clicked
+(function() {
+  var nb = document.getElementById('notifyBtn');
+  if (!nb) return;
+  var pid = nb.getAttribute('onclick').match(/\d+/)?.[0];
+  if (pid && localStorage.getItem('notify_' + pid)) {
+    nb.textContent = '✅ You will be notified!';
+    nb.classList.add('subscribed');
+    nb.disabled = true;
+  }
+})();
+
 /* ── LIGHTBOX ── */
 .lightbox-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:9999; align-items:center; justify-content:center; }
 .lightbox-overlay.open { display:flex; }
@@ -525,6 +558,61 @@ if ($totalReviews > 0) {
   .pdp-btn-row { flex-direction:column; }
   .pdp-related-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
 }
+
+/* OUT OF STOCK — NOTIFY ME */
+.pdp-notify-box {
+  background: #fff8f0;
+  border: 2px dashed #ffb380;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.pdp-notify-label {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+.pdp-notify-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pdp-notify-form input {
+  flex: 1;
+  min-width: 200px;
+  padding: 11px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .2s;
+}
+.pdp-notify-form input:focus { border-color: #ff6a00; }
+.pdp-notify-btn {
+  padding: 11px 22px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.pdp-notify-btn:hover { background: #ff6a00; }
+.pdp-notify-btn:disabled { background: #888; cursor: not-allowed; }
+.pdp-notify-msg {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+.pdp-notify-msg.success { background: #e6f7ed; color: #1a8c45; }
+.pdp-notify-msg.error   { background: #fdecea; color: #c0392b; }
 </style>
 
 <!-- BREADCRUMB -->
@@ -585,24 +673,40 @@ if ($totalReviews > 0) {
     </div>
 
     <?php if ($product['stock'] > 0): ?>
+      <!-- IN STOCK -->
       <div class="pdp-stock-in">In Stock (<?= (int)$product['stock'] ?> units left)</div>
-    <?php else: ?>
-      <div class="pdp-stock-out">Out of Stock</div>
-    <?php endif; ?>
 
     <div class="pdp-qty-row">
-      <span class="pdp-qty-label">Quantity:</span>
-      <div class="pdp-qty-ctrl">
-        <button onclick="changeQty(-1)">−</button>
-        <span id="pdpQty">1</span>
-        <button onclick="changeQty(1)">+</button>
+        <span class="pdp-qty-label">Quantity:</span>
+        <div class="pdp-qty-ctrl">
+          <button onclick="changeQty(-1)">−</button>
+          <span id="pdpQty">1</span>
+          <button onclick="changeQty(1)">+</button>
+        </div>
       </div>
+    <div class="pdp-btn-row">
+        <button class="pdp-btn-cart" onclick="pdpAddCart()">🛒 Add to Cart</button>
+        <button class="pdp-btn-buy"  onclick="pdpBuyNow()">⚡ Buy Now</button>
     </div>
 
-    <div class="pdp-btn-row">
-      <button class="pdp-btn-cart" onclick="pdpAddCart()">🛒 Add to Cart</button>
-      <button class="pdp-btn-buy"  onclick="pdpBuyNow()">⚡ Buy Now</button>
-    </div>
+    <?php else: ?>
+      <!-- OUT OF STOCK -->
+      <div class="pdp-stock-out">⚠ Out of Stock</div>
+
+      <!-- NOTIFY ME FORM -->
+      <div class="pdp-notify-box" id="pdpNotifyBox">
+        <p class="pdp-notify-label">Get notified when this product is back in stock:</p>
+        <div class="pdp-notify-form">
+          <input type="email" id="notifyEmail" placeholder="Enter your email address"
+            value="<?= htmlspecialchars($_SESSION['user_email'] ?? '') ?>">
+          <button onclick="submitNotify()" class="pdp-notify-btn" id="notifyBtn">
+            🔔 Notify Me
+          </button>
+        </div>
+        <div id="notifyMsg" class="pdp-notify-msg" style="display:none"></div>
+      </div>
+
+    <?php endif; ?>
 
     <div class="pdp-trust">
       <div class="pdp-trust-item"><i class="fa-solid fa-shield-halved"></i> 100% Genuine</div>
@@ -970,4 +1074,34 @@ function loadMore() {
 <?php if ($totalReviews > 5): ?>
 initLoadMore();
 <?php endif; ?>
+
+
+/* ── NOTIFY ME (Out of Stock) ── */
+function submitNotify() {
+  var email = document.getElementById('notifyEmail').value.trim();
+  var btn   = document.getElementById('notifyBtn');
+  var msg   = document.getElementById('notifyMsg');
+
+  if (!email || !email.includes('@')) {
+    msg.className = 'pdp-notify-msg error';
+    msg.textContent = 'Please enter a valid email address.';
+    msg.style.display = 'block';
+    return;
+  }
+
+  btn.disabled    = true;
+  btn.textContent = 'Submitting...';
+
+  // Store notification request — simple localStorage for now
+  // In production this would POST to a server endpoint
+  var key      = 'notify_' + 0;
+  var existing = JSON.parse(localStorage.getItem(key) || '[]');
+  if (!existing.includes(email)) existing.push(email);
+  localStorage.setItem(key, JSON.stringify(existing));
+
+  msg.className   = 'pdp-notify-msg success';
+  msg.textContent = '✅ Done! We will email you at ' + email + ' when this product is back in stock.';
+  msg.style.display = 'block';
+  btn.textContent = '✓ Notified';
+}
 </script>

@@ -4,7 +4,10 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 require_once '../includes/auth.php';
 require_once '../config/database.php';
 
-// Pre-fill from session if logged in
+// ── LOGIN REQUIRED — redirect to login, then back here after login ──
+requireLogin('/proburst/pages/login.php');
+
+// Pre-fill from session
 $prefill = ['name' => '', 'phone' => '', 'email' => ''];
 if (isLoggedIn()) {
     $uid = (int)$_SESSION['user_id'];
@@ -53,5 +56,3 @@ if (isLoggedIn()) {
 </section>
 
 <?php include '../includes/footer.php'; ?>
-
-
